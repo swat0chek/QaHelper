@@ -11,6 +11,7 @@ import java.util.Set;
 public class Main {
     private static final Map<String, String> ROUTES = Map.ofEntries(
             Map.entry("/", "index.html"),
+            Map.entry("/practice", "practice.html"),
             Map.entry("/http-codes", "http-codes.html"),
             Map.entry("/styles.css", "styles.css"),
             Map.entry("/data.js", "data.js"),

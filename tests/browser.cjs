@@ -77,7 +77,7 @@ let ws;
   }
   console.log('All 22 pages rendered, headings and anchors verified.');
   await go('/');
-  assert.equal(await evaluate('document.querySelectorAll("a.section-card").length'),22);
+  assert.equal(await evaluate('document.querySelectorAll("#section-grid a.section-card").length'),22);
   assert.equal(await evaluate('document.querySelectorAll(".card-pending").length'),0);
   await evaluate(`document.querySelector('a.section-card[href="/http-codes"]').click()`);
   await until("location.pathname === '/http-codes'");await ready();
@@ -120,11 +120,12 @@ let ws;
   await evaluate("document.querySelector('#select .copy-button').click()");
   await until("document.querySelector('#select .copy-status').textContent.includes('Не удалось')");
   console.log('Clipboard success and failure verified.');
-  for (const width of [1440,768,390,320]) {
+  for (const width of [1440,1024,768,390,320]) {
     await viewport(width);
-    for (const route of ['/','/sql','/architecture','/http-codes','/what-to-test']) {
+    for (const route of ['/','/practice','/sql','/architecture','/http-codes','/what-to-test']) {
       await go(route);await noOverflow(width+' '+route);
       if(route==='/') await screenshot('home-'+width);
+      if(route==='/practice' && width===390) await screenshot('practice-mobile');
       if(route==='/what-to-test' && width===390) await screenshot('checklist-mobile');
       if(route==='/sql' && width===390) await screenshot('sql-mobile');
       if(route==='/architecture' && width===1440) await screenshot('architecture-desktop');
@@ -193,6 +194,32 @@ let ws;
   assert.equal(await evaluate('location.hash'),'#login');
   assert.ok(await evaluate('document.querySelector(".return-link").href.includes("q=Remember")'));
   console.log('Checklists: persistence, isolation, reset/undo, copy, keyboard, corruption, denied storage, search verified.');
+
+
+  await go('/');
+  assert.equal(await evaluate('document.querySelectorAll(".intent-card").length'),3);
+  assert.equal(await evaluate('document.querySelectorAll(".quick-card").length'),4);
+  assert.equal(await evaluate('document.querySelector(".unavailable-card").hasAttribute("href")'),false);
+  assert.equal(await evaluate('document.querySelector(".unavailable-card").tabIndex'),-1);
+  await evaluate('document.querySelector(".skip-link").focus()');
+  await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+  await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+  assert.equal(await evaluate('document.activeElement.id'),'main-content');
+  await evaluate('document.querySelector(".intent-card").focus()');
+  assert.equal(await evaluate('getComputedStyle(document.activeElement).outlineStyle'),'solid');
+  await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+  await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+  assert.equal(await evaluate('document.activeElement.id'),'library-title');
+  await go('/practice');
+  const targets=await evaluate('Array.from(document.querySelectorAll(".practice-links a")).map(a=>a.pathname+a.hash)');
+  assert.equal(targets.length,11);
+  for(const target of targets) {
+    await go(target);
+    if(target.includes('#')) assert.equal(await evaluate('Boolean(document.getElementById(location.hash.slice(1)))'),true,target);
+  }
+  await go('/?q=SELECT');
+  assert.ok(await evaluate('document.getElementById("library").getBoundingClientRect().top < innerHeight'));
+  console.log('Task entries, quick access, practice links, focus and visible search verified.');
 
   assert.equal(exceptions.length,0,JSON.stringify(exceptions));
   console.log('Responsive layouts 1440/768/390/320 verified; no browser exceptions.');

@@ -55,7 +55,7 @@ test('search: titles, examples, multiple words, case, ё, empty and absent terms
 });
 
 test('HTTP pages, assets, HEAD, 404, 405 and encoded traversal', async () => {
-  const paths = ['/', '/styles.css','/data.js','/knowledge.js','/app.js',...catalog.map(m => m.href),...catalog.filter(m => m.file).map(m => m.file)];
+  const paths = ['/', '/practice', '/styles.css','/data.js','/knowledge.js','/app.js',...catalog.map(m => m.href),...catalog.filter(m => m.file).map(m => m.file)];
   for (const path of paths) {
     const response = await fetch(base+path);
     assert.equal(response.status,200,path);

@@ -4,26 +4,48 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0b1225">
-  <meta name="description" content="QA Helpers — справочники и полезные материалы для тестировщика.">
-  <title>QA Helpers — ваш помощник в мире QA</title>
+  <meta name="description" content="qaHelp — рабочий помощник тестировщика. База знаний, готовые проверки и практические материалы для QA.">
+  <title>qaHelp — рабочий помощник тестировщика</title>
   <link rel="stylesheet" href="/styles.css">
   <script src="/data.js" defer></script>
   <script src="/knowledge.js" defer></script>
   <script src="/app.js" defer></script>
 </head>
 <body data-page="home">
+  <a class="skip-link" href="#main-content">К основному содержимому</a>
   <div class="sky-decoration" aria-hidden="true">
     <svg viewBox="0 0 1440 500" preserveAspectRatio="none"><path d="M-40 40C180 90 66 264 290 269S450 330 500 425M1470 0C1260 70 1350 176 1160 228S1130 343 960 327M-20 245C180 206 160 384 310 402"/></svg>
     <span class="star star-one">✦</span><span class="star star-two">✦</span><span class="star star-three">✦</span>
   </div>
   <header class="site-header container">
     <a class="brand" href="/" aria-label="QA Helpers — главная"><span class="brand-icon" aria-hidden="true">‹/›</span><span class="brand-name"><span>qa</span>Help</span></a>
-    <nav class="main-nav" aria-label="Основная навигация"><a href="/" aria-current="page">Главная</a><a href="#library">Справочник</a><a href="#about">О проекте</a></nav>
+    <nav class="main-nav" aria-label="Основная навигация"><a href="/" aria-current="page">Главная</a><a href="#library">База знаний</a><a href="#about">О проекте</a></nav>
   </header>
-  <main class="container">
-    <section class="hero">
-      <h1>Ваш помощник<br>в мире <span class="gradient-text">QA</span></h1>
-      <p class="hero-description">Быстрые ответы, понятные объяснения и полезные примеры<br>для тестировщиков и не только</p>
+  <main class="container" id="main-content" tabindex="-1">
+    <section class="hero task-hero">
+      <p class="eyebrow">ЗНАНИЯ. ПРОВЕРКИ. РЕШЕНИЯ.</p>
+      <h1><span class="gradient-text">qaHelp</span> — рабочий <br>помощник тестировщика.</h1>
+      <p class="hero-description">Не помни всё. Знай, где быстро найти.</p>
+    </section>
+    <section class="intent-section" aria-labelledby="intent-title">
+      <h2 id="intent-title">Что хотите сделать сейчас?</h2>
+      <div class="intent-grid">
+        <a class="section-card intent-card" data-color="purple" href="#library"><span class="card-icon" data-icon="book" aria-hidden="true"></span><h3>Хочу разобраться</h3><p class="card-description">Понятные объяснения HTTP, API, SQL и других тем.</p><div class="card-bottom"><span class="card-arrow" aria-hidden="true">→</span></div></a>
+        <a class="section-card intent-card" data-color="green" href="/what-to-test"><span class="card-icon" data-icon="check" aria-hidden="true"></span><h3>Мне нужно протестировать</h3><p class="card-description">Готовые проверки для вашей функциональности.</p><div class="card-bottom"><span class="card-arrow" aria-hidden="true">→</span></div></a>
+        <a class="section-card intent-card" data-color="blue" href="/practice"><span class="card-icon" data-icon="gear" aria-hidden="true"></span><h3>Мне нужно решить задачу</h3><p class="card-description">Диагностика проблем, полезные команды и шпаргалки.</p><div class="card-bottom"><span class="card-arrow" aria-hidden="true">→</span></div></a>
+      </div>
+    </section>
+    <section class="quick-section" aria-labelledby="quick-title">
+      <h2 id="quick-title">Быстрый доступ</h2>
+      <div class="quick-grid">
+        <a class="section-card quick-card" data-color="green" href="/what-to-test"><span class="card-icon" data-icon="check" aria-hidden="true"></span><h3>Что проверить?</h3><p class="card-description">12 сценариев с готовыми чек-листами.</p><div class="card-bottom"><span class="card-arrow" aria-hidden="true">→</span></div></a>
+        <a class="section-card quick-card" data-color="blue" href="/practice#troubleshooting"><span class="card-icon" data-icon="gear" aria-hidden="true"></span><h3>Troubleshooting</h3><p class="card-description">Найдите причину проблемы.</p><div class="card-bottom"><span class="card-arrow" aria-hidden="true">→</span></div></a>
+        <article class="section-card quick-card unavailable-card" data-color="orange"><span class="card-icon" data-icon="bolt" aria-hidden="true"></span><h3>QA Toolbox</h3><p class="card-description">Небольшие утилиты для повседневных QA-задач.</p><div class="card-bottom"><span class="soon-badge">Скоро</span></div></article>
+        <a class="section-card quick-card" data-color="purple" href="/practice#cheat-sheets"><span class="card-icon" data-icon="book" aria-hidden="true"></span><h3>Cheat Sheets</h3><p class="card-description">Команды и примеры под рукой.</p><div class="card-bottom"><span class="card-arrow" aria-hidden="true">→</span></div></a>
+      </div>
+    </section>
+    <section class="library" id="library" aria-labelledby="library-title">
+      <div class="catalog-heading"><h2 id="library-title" tabindex="-1">База знаний</h2><span>22 раздела · от основ к практике</span></div>
       <div class="search-box">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
         <label class="sr-only" for="knowledge-search">Поиск по базе знаний</label>
@@ -31,19 +53,15 @@
         <button class="search-reset" id="search-reset" type="button" aria-label="Очистить поиск" hidden>×</button>
       </div>
       <p class="search-hint" id="search-hint">Поиск по названиям, объяснениям и примерам</p>
-      <div class="handwritten" aria-hidden="true">Знания<br>всегда под рукой<svg viewBox="0 0 80 65"><path d="M62 4Q65 43 15 49m0 0 13-12m-13 12 18 4"/></svg></div>
-    </section>
-    <section class="library" id="library" aria-labelledby="library-title">
-      <div class="catalog-heading"><h2 id="library-title">База знаний</h2><span>22 раздела · от основ к практике</span></div>
       <p id="search-status" class="search-status" role="status" aria-live="polite"></p>
       <div class="section-grid" id="section-grid"></div>
       <div id="search-results" class="search-results" hidden></div>
       <noscript><p>Для отображения каталога включите JavaScript. <a href="/http-codes">Перейти к HTTP-кодам</a>.</p></noscript>
     </section>
     <section class="features" id="about" aria-label="О проекте">
-      <div><span data-icon="book" aria-hidden="true"></span><span>Простые объяснения</span></div>
-      <div><span data-icon="bolt" aria-hidden="true"></span><span>Практические примеры</span></div>
-      <div><span data-icon="gear" aria-hidden="true"></span><span>Полезные шпаргалки</span></div>
+      <div><span data-icon="book" aria-hidden="true"></span><span>Разобраться в теме</span></div>
+      <div><span data-icon="bolt" aria-hidden="true"></span><span>Проверить функциональность</span></div>
+      <div><span data-icon="gear" aria-hidden="true"></span><span>Найти решение</span></div>
       <div><span data-icon="heart" aria-hidden="true"></span><span>Создано для QA</span></div>
     </section>
   </main>

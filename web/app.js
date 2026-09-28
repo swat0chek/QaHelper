@@ -9,6 +9,7 @@ const { sections, httpGroups } = window.qaData;
 
 // Small local vector icons; no external fonts or image requests.
 const iconPaths = {
+  check: 'M5 3h14v18H5z M8 12l3 3 5-6',
   laptop: 'M4 4h16v13H4z M2 20h20l-2-3H4z M10 18h4',
   api: 'M8 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0 M21 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0 M21 19a3 3 0 1 1-6 0 3 3 0 0 1 6 0 M8 11l7-5 M8 13l7 5',
   database: 'M20 5c0 2-3.6 3-8 3S4 7 4 5s3.6-3 8-3 8 1 8 3 M4 5v14c0 2 3.6 3 8 3s8-1 8-3V5 M4 10c0 2 3.6 3 8 3s8-1 8-3 M4 15c0 2 3.6 3 8 3s8-1 8-3',
@@ -269,8 +270,21 @@ async function initializeSearch() {
   }
   renderSearch();
   document.body.dataset.ready = loadError ? 'error' : 'true';
+  if (query().trim()) document.getElementById('library').scrollIntoView({block: 'start', behavior: 'instant'});
 }
 
+if (document.body.dataset.page === 'home') {
+  document.querySelectorAll('a[href="#library"]').forEach(link => link.addEventListener('click', event => {
+    event.preventDefault();
+    if (location.hash !== '#library') history.pushState(null, '', location.pathname + location.search + '#library');
+    document.getElementById('library-title').focus({preventScroll: true});
+    document.getElementById('library').scrollIntoView({block: 'start'});
+  }));
+}
+document.querySelectorAll('.skip-link').forEach(link => link.addEventListener('click', () => {
+  document.getElementById('main-content').focus({preventScroll: true});
+}));
+if (document.body.dataset.page === 'practice') document.body.dataset.ready = 'true';
 if (document.body.dataset.page === 'home') initializeSearch();
 if (document.body.dataset.page === 'module') renderModule().catch(error => {
   document.getElementById('module-status').textContent = error.message;

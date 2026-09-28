@@ -153,3 +153,43 @@ body[data-page='checklists'] .reference-intro h1 { font-size: clamp(32px,4vw,49p
 .check-text strong { font-size: 15px; line-height: 1.5; }
 .check-text > span { font-size: 13px; line-height: 1.7; color: #52617b; }
 @media (max-width: 480px) { .check-item { padding: 13px 10px; gap: 10px; }.check-text strong { font-size: 14px; } }
+
+/* Task-oriented home and practical entry point. */
+.skip-link { position: absolute; left: 16px; top: 12px; z-index: 10; padding: 12px 18px; border-radius: 8px; background: #fff; color: #443279; transform: translateY(-160%); }
+.skip-link:focus { transform: translateY(0); }
+#main-content:focus { outline: none; }
+#library-title:focus-visible { outline: 3px solid #7561dc; outline-offset: 6px; border-radius: 4px; }
+body[data-page='home'] .task-hero { padding: 46px 0 30px; }
+.task-hero h1 { font-size: clamp(34px,4.3vw,54px); line-height: 1.15; }
+.task-hero .eyebrow { color: #b8b5ed; margin-bottom: 16px; }
+.intent-section { padding-bottom: 36px; }
+.intent-section > h2 { color: #f5f5ff; font-size: 19px; font-weight: 500; text-align: center; margin: 0 0 22px; }
+.intent-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; }
+.intent-card.section-card { min-height: 250px; padding: 25px; }
+.intent-card h3 { font-size: 21px; line-height: 1.3; }
+.quick-section { margin: 0 0 45px; }
+.quick-section > h2 { margin: 0 0 18px; font-size: 21px; }
+.quick-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 14px; }
+.quick-card.section-card { min-height: 190px; padding: 20px; }
+.quick-card .card-icon { width: 36px; height: 36px; border-radius: 9px; }
+.quick-card .card-icon svg { width: 24px; height: 24px; }
+.quick-card h3 { margin-top: 12px; font-size: 17px; }
+.quick-card .card-description { font-size: 12px; }
+.quick-card .card-arrow { width: 29px; height: 29px; font-size: 20px; }
+.unavailable-card { cursor: default; }
+body[data-page='home'] .library { border-top: 1px solid #dedfeb; padding-top: 30px; scroll-margin-top: 24px; }
+body[data-page='home'] .library .search-box { max-width: none; width: 100%; margin: 20px 0 0; border-color: #d7d7e6; }
+body[data-page='home'] .library .search-hint { color: #626f8b; margin-bottom: 23px; }
+body[data-page='practice']::before { height: 630px; }
+body[data-page='practice'] .reference-intro { padding-bottom: 38px; }
+body[data-page='practice'] h1 { font-size: clamp(34px,4.5vw,54px); }
+.practice-section { scroll-margin-top: 24px; }
+.practice-links { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.practice-links > a { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 5px 12px; padding: 17px; border: 1px solid #ddd6ef; border-radius: 12px; background: #f7f4ff; text-decoration: none; }
+.practice-links > a:hover { border-color: #9480be; }
+.practice-links strong { color: #3c315c; font-size: 15px; }
+.practice-links span { color: #626b84; font-size: 13px; line-height: 1.6; grid-column: 1; }
+.practice-links span[aria-hidden] { grid-column: 2; grid-row: 1 / 3; align-self: center; color: #7459b3; font-size: 22px; }
+.toolbox-pending .soon-badge { float: right; }
+@media (max-width: 1050px) { .intent-grid { grid-template-columns: minmax(0,1fr); }.intent-card.section-card { min-height: 0; display: grid; grid-template-columns: 52px minmax(0,1fr) 36px; gap: 5px 18px; padding: 22px; }.intent-card .card-icon { grid-row: 1 / 3; align-self: center; }.intent-card h3 { grid-column: 2; margin: 0; }.intent-card .card-description { grid-column: 2; margin: 0; }.intent-card .card-bottom { grid-column: 3; grid-row: 1 / 3; align-self: center; margin: 0; }.quick-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 600px) { .task-hero h1 br { display: none; }.intent-section > h2 { font-size: 17px; }.intent-card.section-card { grid-template-columns: 40px minmax(0,1fr); padding: 18px; gap: 6px 12px; }.intent-card .card-icon { width: 40px; height: 40px; }.intent-card h3 { font-size: 18px; }.intent-card .card-bottom { grid-column: 2; grid-row: 3; justify-content: flex-end; }.quick-grid { grid-template-columns: minmax(0,1fr); }.quick-card.section-card { min-height: 0; }.practice-links { grid-template-columns: minmax(0,1fr); }body[data-page='home'] .task-hero { padding-top: 30px; } }
