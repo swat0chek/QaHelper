@@ -1,11 +1,195 @@
-// Local MVP catalog. Add a section here and register its page in Main.java.
+// Catalog metadata. Module content lives in web/modules; routes are allowlisted in Main.java.
 window.qaData = {
   sections: [
-    { title: 'HTTP коды', icon: 'http', color: 'purple', href: '/http-codes', description: 'Разберитесь в ответах сервера: 200, 404, 500 и других статусах.' },
-    { title: 'DevTools', icon: 'laptop', color: 'blue', description: 'Изучите возможности браузерных инструментов для тестирования.' },
-    { title: 'Запросы к API', icon: 'api', color: 'green', description: 'Примеры запросов, ответов, типы данных и проверка результатов.' },
-    { title: 'SQL', icon: 'database', color: 'orange', description: 'Основы запросов, полезные команды и примеры.' }
-  ],
+  {
+    "id": "http-codes",
+    "title": "HTTP коды",
+    "description": "Все пять классов ответов и 25 статусов с пояснениями.",
+    "icon": "http",
+    "color": "purple",
+    "href": "/http-codes"
+  },
+  {
+    "id": "devtools",
+    "title": "DevTools",
+    "description": "Находите причины ошибок через Network, Console и инструменты браузера.",
+    "icon": "laptop",
+    "color": "blue",
+    "href": "/devtools",
+    "file": "/modules/devtools.js"
+  },
+  {
+    "id": "api-testing",
+    "title": "API-тестирование",
+    "description": "REST, JSON, авторизация и проверки контрактов с практическими примерами.",
+    "icon": "api",
+    "color": "green",
+    "href": "/api-testing",
+    "file": "/modules/api-testing.js"
+  },
+  {
+    "id": "sql",
+    "title": "SQL",
+    "description": "Запросы к учебной базе: выборки, JOIN, группировки и изменение данных.",
+    "icon": "database",
+    "color": "orange",
+    "href": "/sql",
+    "file": "/modules/sql.js"
+  },
+  {
+    "id": "bug-reports",
+    "title": "Баг-репорты",
+    "description": "От воспроизведения до понятного отчёта: важность, приоритет и доказательства.",
+    "icon": "book",
+    "color": "purple",
+    "href": "/bug-reports",
+    "file": "/modules/bug-reports.js"
+  },
+  {
+    "id": "test-cases",
+    "title": "Тест-кейсы и чек-листы",
+    "description": "Выбирайте нужную детализацию и покрывайте позитивные и негативные сценарии.",
+    "icon": "book",
+    "color": "blue",
+    "href": "/test-cases",
+    "file": "/modules/test-cases.js"
+  },
+  {
+    "id": "test-design",
+    "title": "Техники тест-дизайна",
+    "description": "Сокращайте число проверок, сохраняя осмысленное покрытие рисков.",
+    "icon": "gear",
+    "color": "green",
+    "href": "/test-design",
+    "file": "/modules/test-design.js"
+  },
+  {
+    "id": "http",
+    "title": "HTTP подробнее",
+    "description": "Методы, заголовки, кеширование, CORS и HTTPS на понятных примерах.",
+    "icon": "http",
+    "color": "purple",
+    "href": "/http",
+    "file": "/modules/http.js"
+  },
+  {
+    "id": "browser-storage",
+    "title": "Cookies / Local / Session Storage",
+    "description": "Различия браузерных хранилищ и проверки сохранения состояния.",
+    "icon": "database",
+    "color": "orange",
+    "href": "/browser-storage",
+    "file": "/modules/browser-storage.js"
+  },
+  {
+    "id": "git",
+    "title": "Git для QA",
+    "description": "Повседневная работа с ветками, изменениями и конфликтами.",
+    "icon": "gear",
+    "color": "purple",
+    "href": "/git",
+    "file": "/modules/git.js"
+  },
+  {
+    "id": "command-line",
+    "title": "Командная строка",
+    "description": "Команды Windows и Linux для файлов, сети и диагностики.",
+    "icon": "laptop",
+    "color": "blue",
+    "href": "/command-line",
+    "file": "/modules/command-line.js"
+  },
+  {
+    "id": "mobile-qa",
+    "title": "Mobile QA",
+    "description": "Устройства, ADB, разрешения, логи и мобильные сценарии.",
+    "icon": "laptop",
+    "color": "green",
+    "href": "/mobile-qa",
+    "file": "/modules/mobile-qa.js"
+  },
+  {
+    "id": "logs",
+    "title": "Логи",
+    "description": "Читайте stack trace и связывайте события по времени и request ID.",
+    "icon": "book",
+    "color": "orange",
+    "href": "/logs",
+    "file": "/modules/logs.js"
+  },
+  {
+    "id": "security",
+    "title": "Основы безопасности для QA",
+    "description": "Проверки доступа и обработки данных в рамках обычного QA.",
+    "icon": "gear",
+    "color": "purple",
+    "href": "/security",
+    "file": "/modules/security.js"
+  },
+  {
+    "id": "performance",
+    "title": "Performance",
+    "description": "Время ответа, пропускная способность и первые нагрузочные сценарии.",
+    "icon": "bolt",
+    "color": "blue",
+    "href": "/performance",
+    "file": "/modules/performance.js"
+  },
+  {
+    "id": "automation",
+    "title": "Автоматизация",
+    "description": "Уровни тестов, UI/API и выбор подходящего инструмента.",
+    "icon": "gear",
+    "color": "green",
+    "href": "/automation",
+    "file": "/modules/automation.js"
+  },
+  {
+    "id": "ci-cd",
+    "title": "CI/CD",
+    "description": "Как изменения проходят сборку, проверки и развёртывание.",
+    "icon": "bolt",
+    "color": "orange",
+    "href": "/ci-cd",
+    "file": "/modules/ci-cd.js"
+  },
+  {
+    "id": "architecture",
+    "title": "Архитектура",
+    "description": "Понятные схемы frontend, backend, БД, очередей и кеша.",
+    "icon": "api",
+    "color": "purple",
+    "href": "/architecture",
+    "file": "/modules/architecture.js"
+  },
+  {
+    "id": "testing-types",
+    "title": "Виды тестирования",
+    "description": "Как выбрать проверки под изменение, риск и стадию выпуска.",
+    "icon": "book",
+    "color": "blue",
+    "href": "/testing-types",
+    "file": "/modules/testing-types.js"
+  },
+  {
+    "id": "qa-metrics",
+    "title": "QA-метрики",
+    "description": "Считайте показатели с понятными знаменателями и ограничениями.",
+    "icon": "gear",
+    "color": "green",
+    "href": "/qa-metrics",
+    "file": "/modules/qa-metrics.js"
+  },
+  {
+    "id": "glossary",
+    "title": "Словарь QA",
+    "description": "Термины с примерами и переходами к практическим материалам.",
+    "icon": "book",
+    "color": "orange",
+    "href": "/glossary",
+    "file": "/modules/glossary.js"
+  }
+],
   httpGroups: [
     { prefix: '1xx', title: 'Информационные', description: 'Запрос принят, обработка продолжается.', codes: [
       [100, 'Continue', 'Промежуточный ответ: клиент может продолжить отправку тела запроса.'],

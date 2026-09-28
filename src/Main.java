@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Set;
 
 public class Main {
     private static final Map<String, String> ROUTES = Map.ofEntries(
@@ -13,8 +14,27 @@ public class Main {
             Map.entry("/http-codes", "http-codes.html"),
             Map.entry("/styles.css", "styles.css"),
             Map.entry("/data.js", "data.js"),
+            Map.entry("/knowledge.js", "knowledge.js"),
             Map.entry("/app.js", "app.js")
     );
+
+    private static final Set<String> MODULES = Set.of(
+            "devtools", "api-testing", "sql", "bug-reports", "test-cases", "test-design",
+            "http", "browser-storage", "git", "command-line", "mobile-qa", "logs",
+            "security", "performance", "automation", "ci-cd", "architecture",
+            "testing-types", "qa-metrics", "glossary"
+    );
+
+    private static String resolveFile(String path) {
+        String file = ROUTES.get(path);
+        if (file != null) return file;
+        if (path.startsWith("/") && MODULES.contains(path.substring(1))) return "module.html";
+        if (path.startsWith("/modules/") && path.endsWith(".js")) {
+            String id = path.substring("/modules/".length(), path.length() - 3);
+            if (MODULES.contains(id)) return "modules/" + id + ".js";
+        }
+        return null;
+    }
 
     public static void main(String[] args) throws IOException {
         int port = args.length > 0 ? Integer.parseInt(args[0]) : 8080;
@@ -37,7 +57,7 @@ public class Main {
                 respond(exchange, 405, "text/plain", "Method not allowed".getBytes(StandardCharsets.UTF_8));
                 return;
             }
-            String file = ROUTES.get(exchange.getRequestURI().getPath());
+            String file = resolveFile(exchange.getRequestURI().getPath());
             if (file == null) {
                 respond(exchange, 404, "text/html", ("<!doctype html><html lang=\"ru\"><meta charset=\"utf-8\">"
                         + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"

@@ -8,6 +8,7 @@
   <title>QA Helpers — ваш помощник в мире QA</title>
   <link rel="stylesheet" href="/styles.css">
   <script src="/data.js" defer></script>
+  <script src="/knowledge.js" defer></script>
   <script src="/app.js" defer></script>
 </head>
 <body data-page="home">
@@ -25,16 +26,18 @@
       <p class="hero-description">Быстрые ответы, понятные объяснения и полезные примеры<br>для тестировщиков и не только</p>
       <div class="search-box">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
-        <label class="sr-only" for="knowledge-search">Поиск по базе знаний — скоро</label>
-        <input id="knowledge-search" type="search" placeholder="Найти информацию…" disabled aria-describedby="search-hint">
-        <span class="soon-badge">Скоро</span>
+        <label class="sr-only" for="knowledge-search">Поиск по базе знаний</label>
+        <input id="knowledge-search" type="search" placeholder="Найти информацию…" aria-describedby="search-hint" aria-controls="search-results">
+        <button class="search-reset" id="search-reset" type="button" aria-label="Очистить поиск" hidden>×</button>
       </div>
-      <p class="search-hint" id="search-hint">Поиск скоро появится</p>
+      <p class="search-hint" id="search-hint">Поиск по названиям, объяснениям и примерам</p>
       <div class="handwritten" aria-hidden="true">Знания<br>всегда под рукой<svg viewBox="0 0 80 65"><path d="M62 4Q65 43 15 49m0 0 13-12m-13 12 18 4"/></svg></div>
     </section>
     <section class="library" id="library" aria-labelledby="library-title">
-      <h2 id="library-title" class="sr-only">Справочники для QA</h2>
+      <div class="catalog-heading"><h2 id="library-title">База знаний</h2><span>21 раздел · от основ к практике</span></div>
+      <p id="search-status" class="search-status" role="status" aria-live="polite"></p>
       <div class="section-grid" id="section-grid"></div>
+      <div id="search-results" class="search-results" hidden></div>
       <noscript><p>Для отображения каталога включите JavaScript. <a href="/http-codes">Перейти к HTTP-кодам</a>.</p></noscript>
     </section>
     <section class="features" id="about" aria-label="О проекте">
