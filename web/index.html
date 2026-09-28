@@ -1,0 +1,48 @@
+﻿<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1225">
+  <meta name="description" content="QA Helpers — справочники и полезные материалы для тестировщика.">
+  <title>QA Helpers — ваш помощник в мире QA</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/data.js" defer></script>
+  <script src="/app.js" defer></script>
+</head>
+<body data-page="home">
+  <div class="sky-decoration" aria-hidden="true">
+    <svg viewBox="0 0 1440 500" preserveAspectRatio="none"><path d="M-40 40C180 90 66 264 290 269S450 330 500 425M1470 0C1260 70 1350 176 1160 228S1130 343 960 327M-20 245C180 206 160 384 310 402"/></svg>
+    <span class="star star-one">✦</span><span class="star star-two">✦</span><span class="star star-three">✦</span>
+  </div>
+  <header class="site-header container">
+    <a class="brand" href="/" aria-label="QA Helpers — главная"><span class="brand-icon" aria-hidden="true">‹/›</span><span class="brand-name"><span>qa</span>Help</span></a>
+    <nav class="main-nav" aria-label="Основная навигация"><a href="/" aria-current="page">Главная</a><a href="#library">Справочник</a><a href="#about">О проекте</a></nav>
+  </header>
+  <main class="container">
+    <section class="hero">
+      <h1>Ваш помощник<br>в мире <span class="gradient-text">QA</span></h1>
+      <p class="hero-description">Быстрые ответы, понятные объяснения и полезные примеры<br>для тестировщиков и не только</p>
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+        <label class="sr-only" for="knowledge-search">Поиск по базе знаний — скоро</label>
+        <input id="knowledge-search" type="search" placeholder="Найти информацию…" disabled aria-describedby="search-hint">
+        <span class="soon-badge">Скоро</span>
+      </div>
+      <p class="search-hint" id="search-hint">Поиск скоро появится</p>
+      <div class="handwritten" aria-hidden="true">Знания<br>всегда под рукой<svg viewBox="0 0 80 65"><path d="M62 4Q65 43 15 49m0 0 13-12m-13 12 18 4"/></svg></div>
+    </section>
+    <section class="library" id="library" aria-labelledby="library-title">
+      <h2 id="library-title" class="sr-only">Справочники для QA</h2>
+      <div class="section-grid" id="section-grid"></div>
+      <noscript><p>Для отображения каталога включите JavaScript. <a href="/http-codes">Перейти к HTTP-кодам</a>.</p></noscript>
+    </section>
+    <section class="features" id="about" aria-label="О проекте">
+      <div><span data-icon="book" aria-hidden="true"></span><span>Простые объяснения</span></div>
+      <div><span data-icon="bolt" aria-hidden="true"></span><span>Практические примеры</span></div>
+      <div><span data-icon="gear" aria-hidden="true"></span><span>Полезные шпаргалки</span></div>
+      <div><span data-icon="heart" aria-hidden="true"></span><span>Создано для QA</span></div>
+    </section>
+  </main>
+</body>
+</html>
