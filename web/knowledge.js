@@ -4,6 +4,7 @@ window.qaKnowledge = (() => {
   const requests = new Map();
   const normalize = text => String(text).toLocaleLowerCase('ru').replaceAll('ё', 'е');
   function blockText(block) {
+    if (block.type === 'checklist') return block.items.map(item => item.title + ' ' + item.expected).join(' ');
     if (block.type === 'table') return [...block.headers, ...block.rows.flat()].join(' ');
     if (block.type === 'list') return block.items.join(' ');
     if (block.type === 'links') return block.items.map(item => item[0]).join(' ');

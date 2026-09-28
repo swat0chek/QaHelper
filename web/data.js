@@ -1,6 +1,7 @@
 // Catalog metadata. Module content lives in web/modules; routes are allowlisted in Main.java.
 window.qaData = {
   sections: [
+{"id":"what-to-test","title":"Что проверить?","description":"Готовые чек-листы для 12 сценариев: выбирайте, проверяйте и сохраняйте отметки.","icon":"book","color":"purple","href":"/what-to-test","file":"/modules/what-to-test.js"},
   {
     "id": "http-codes",
     "title": "HTTP коды",

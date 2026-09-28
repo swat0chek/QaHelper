@@ -133,3 +133,23 @@ figcaption { font-size: 13px; }
 .sources { background: #f5f2fc; }
 @media (max-width: 900px) { .reading-layout { grid-template-columns: minmax(0,1fr); }.topic-nav { position: static; max-height: none; }.topic-nav a { padding: 7px 0; } }
 @media (max-width: 480px) { .catalog-heading { flex-direction: column; gap: 5px; }.article-topic { padding: 19px 16px; }.article-topic h2 { font-size: 21px; }.article-topic p, .article-topic li { font-size: 14px; }.search-result { padding: 18px; }.section-card { min-height: 270px; }th, td { padding: 10px; }.code-toolbar { padding-inline: 12px; } }
+
+/* Interactive ready-to-use checklists. */
+body[data-page='checklists']::before { height: 690px; }
+body[data-page='checklists'] .reference-intro { padding-bottom: 40px; }
+body[data-page='checklists'] .reference-intro h1 { font-size: clamp(32px,4vw,49px); }
+.topic-nav a[aria-current='true'] { color: #513694; font-weight: 700; background: #eee8fb; border-radius: 7px; padding-inline: 8px; }
+.check-toolbar { display: flex; flex-wrap: wrap; gap: 10px; }
+.check-toolbar button { font-size: 12px; padding: 10px 14px; }
+.check-toolbar button:disabled { opacity: .5; cursor: default; }
+.check-counter { font-weight: 600; }
+.check-message:empty { display: none; }
+.check-items { margin-top: 22px; display: grid; gap: 10px; }
+.check-item { display: flex; align-items: flex-start; gap: 13px; padding: 16px; border: 1px solid #e4dfef; border-radius: 12px; background: #fcfbff; cursor: pointer; }
+.check-item:hover { border-color: #b5a1dc; }
+.check-item:has(input:checked) { background: #eef8f3; border-color: #b7d8c6; }
+.check-item input { width: 19px; height: 19px; margin: 3px 0 0; flex-shrink: 0; accent-color: #7256bb; cursor: pointer; }
+.check-text { min-width: 0; display: grid; gap: 5px; overflow-wrap: anywhere; }
+.check-text strong { font-size: 15px; line-height: 1.5; }
+.check-text > span { font-size: 13px; line-height: 1.7; color: #52617b; }
+@media (max-width: 480px) { .check-item { padding: 13px 10px; gap: 10px; }.check-text strong { font-size: 14px; } }

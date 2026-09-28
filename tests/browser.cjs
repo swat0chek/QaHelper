@@ -69,17 +69,17 @@ let ws;
   for(const meta of context.window.qaData.sections) {
     await go(meta.href);
     assert.ok(await evaluate('document.querySelector("h1").textContent.length > 0'),meta.id);
-    const expected=meta.id==='http-codes'?25:3;
+    const expected=meta.id==='http-codes'?25:meta.id==='what-to-test'?1:3;
     const count=await evaluate(meta.id==='http-codes'?'document.querySelectorAll(".code-row").length':'document.querySelectorAll(".article-topic").length');
     assert.ok(count>=expected,meta.id);
-    assert.equal(await evaluate(`Array.from(document.querySelectorAll('.topic-nav a,.category-nav a')).every(a => document.getElementById(a.hash.slice(1)))`),true,meta.id);
+    if (meta.id !== 'what-to-test') assert.equal(await evaluate(`Array.from(document.querySelectorAll('.topic-nav a,.category-nav a')).every(a => document.getElementById(a.hash.slice(1)))`),true,meta.id);
     await noOverflow(meta.id);
   }
-  console.log('All 21 pages rendered, headings and anchors verified.');
+  console.log('All 22 pages rendered, headings and anchors verified.');
   await go('/');
-  assert.equal(await evaluate('document.querySelectorAll("a.section-card").length'),21);
+  assert.equal(await evaluate('document.querySelectorAll("a.section-card").length'),22);
   assert.equal(await evaluate('document.querySelectorAll(".card-pending").length'),0);
-  await evaluate("document.querySelector('a.section-card').click()");
+  await evaluate(`document.querySelector('a.section-card[href="/http-codes"]').click()`);
   await until("location.pathname === '/http-codes'");await ready();
   await go('/');
   const search=async value => {
@@ -122,13 +122,78 @@ let ws;
   console.log('Clipboard success and failure verified.');
   for (const width of [1440,768,390,320]) {
     await viewport(width);
-    for (const route of ['/','/sql','/architecture','/http-codes']) {
+    for (const route of ['/','/sql','/architecture','/http-codes','/what-to-test']) {
       await go(route);await noOverflow(width+' '+route);
       if(route==='/') await screenshot('home-'+width);
+      if(route==='/what-to-test' && width===390) await screenshot('checklist-mobile');
       if(route==='/sql' && width===390) await screenshot('sql-mobile');
       if(route==='/architecture' && width===1440) await screenshot('architecture-desktop');
     }
   }
+
+  await go('/what-to-test#login');
+  for (const scenario of ['registration','search','filters','pagination','upload','cart','payment','email','tables','dates','api','login']) {
+    await evaluate('document.querySelector(' + JSON.stringify('a[data-scenario="'+scenario+'"]') + ').click()');
+    await until('document.querySelector(".interactive-checklist").id === ' + JSON.stringify(scenario));
+    assert.ok(await evaluate('document.querySelectorAll(".check-item input").length >= 12'));
+  }
+  assert.equal(await evaluate('document.querySelectorAll(".check-item").length'),15);
+  await evaluate('localStorage.clear()');
+  await send('Page.reload'); await ready();
+  await evaluate('document.querySelector(".check-item input").click()');
+  assert.ok(await evaluate('document.querySelector(".check-counter").textContent.includes("1 из 15")'));
+  await send('Page.reload');await ready();
+  assert.equal(await evaluate('document.querySelector(".check-item input").checked'),true);
+  await evaluate('document.querySelector("a[data-scenario=registration]").click()');
+  await until('location.hash === "#registration" && document.querySelector(".interactive-checklist").id === "registration"');
+  assert.equal(await evaluate('document.querySelectorAll("input:checked").length'),0);
+  await evaluate('document.querySelector(".check-item input").click()');
+  await evaluate('history.back()');
+  await until('document.querySelector(".interactive-checklist").id === "login"');
+  assert.equal(await evaluate('document.querySelectorAll("input:checked").length'),1);
+  await evaluate('document.querySelectorAll(".check-toolbar button")[1].click()');
+  assert.equal(await evaluate('document.querySelectorAll("input:checked").length'),0);
+  await evaluate('document.querySelectorAll(".check-toolbar button")[2].click()');
+  assert.equal(await evaluate('document.querySelectorAll("input:checked").length'),1);
+  await evaluate('document.querySelector(".check-item input").focus()');
+  await send('Input.dispatchKeyEvent',{type:'keyDown',key:' ',code:'Space',windowsVirtualKeyCode:32});
+  await send('Input.dispatchKeyEvent',{type:'keyUp',key:' ',code:'Space',windowsVirtualKeyCode:32});
+  assert.equal(await evaluate('document.querySelectorAll("input:checked").length'),0);
+  await evaluate('document.querySelector(".check-item input").click()');
+  await evaluate('document.querySelector(".check-toolbar button").click()');
+  await until('document.querySelector(".check-message").textContent.includes("скопирован")');
+  const copied=await evaluate('navigator.clipboard.readText()');
+  assert.ok(copied.includes('[x] Пустые поля') && copied.includes('[ ] Неверный пароль'));
+  assert.ok(copied.includes('сессия не создаётся'));
+  await evaluate('Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:async()=>{throw new Error("Denied")}}})');
+  await evaluate('document.querySelector(".check-toolbar button").click()');
+  await until('document.querySelector(".check-message").textContent.includes("Не удалось")');
+  await evaluate('localStorage.setItem("qaHelpers.checklists.v1.login", "bad-json")');
+  await send('Page.reload');await ready();
+  assert.equal(await evaluate('document.querySelectorAll("input:checked").length'),0);
+  await evaluate('localStorage.setItem("qaHelpers.checklists.v1.login", JSON.stringify(["empty","removed-id",42]))');
+  await send('Page.reload');await ready();
+  assert.equal(await evaluate('document.querySelectorAll("input:checked").length'),1);
+  await go('/what-to-test#missing');
+  assert.equal(await evaluate('location.hash'),'#login');
+  const denied=await send('Page.addScriptToEvaluateOnNewDocument',{source:'Object.defineProperty(window,"localStorage",{get(){throw new Error("Denied")}})'});
+  await send('Page.reload');await ready();
+  assert.ok(await evaluate('document.getElementById("module-status").textContent.includes("Сохранение недоступно")'));
+  await evaluate('document.querySelector(".check-item input").click()');
+  assert.equal(await evaluate('document.querySelectorAll("input:checked").length'),1);
+  await evaluate('document.querySelector("a[data-scenario=api]").click()');
+  await until('document.querySelector(".interactive-checklist").id === "api"');
+  await evaluate('document.querySelector("a[data-scenario=login]").click()');
+  await until('document.querySelector(".interactive-checklist").id === "login"');
+  assert.equal(await evaluate('document.querySelectorAll("input:checked").length'),1);
+  await send('Page.removeScriptToEvaluateOnNewDocument',{identifier:denied.identifier});
+  await go('/?q=Remember%20me');
+  await evaluate('Array.from(document.querySelectorAll(".search-result")).find(a=>a.hash==="#login").click()');
+  await until('location.pathname === "/what-to-test"');await ready();
+  assert.equal(await evaluate('location.hash'),'#login');
+  assert.ok(await evaluate('document.querySelector(".return-link").href.includes("q=Remember")'));
+  console.log('Checklists: persistence, isolation, reset/undo, copy, keyboard, corruption, denied storage, search verified.');
+
   assert.equal(exceptions.length,0,JSON.stringify(exceptions));
   console.log('Responsive layouts 1440/768/390/320 verified; no browser exceptions.');
   await send('Browser.close');

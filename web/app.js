@@ -37,6 +37,7 @@ function icon(name) {
 document.querySelectorAll('[data-icon]').forEach(node => node.append(icon(node.dataset.icon)));
 
 function renderCatalog() {
+  document.querySelector('.catalog-heading span').textContent = sections.length + ' раздела · от основ к практике';
   const grid = document.getElementById('section-grid');
   for (const section of sections) {
     const card = element(section.href ? 'a' : 'article', `section-card${section.href ? '' : ' card-pending'}`);

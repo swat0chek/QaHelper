@@ -14,19 +14,19 @@ const contents = catalog.map(meta => meta.id === 'http-codes' ? {
 } : qaModules[meta.id]);
 const index = qaKnowledge.index(catalog,contents);
 
-test('21 unique modules; valid structured content and links', () => {
-  assert.equal(catalog.length,21);
-  assert.equal(new Set(catalog.map(m => m.id)).size,21);
-  assert.equal(new Set(catalog.map(m => m.href)).size,21);
+test('22 unique modules; valid structured content and links', () => {
+  assert.equal(catalog.length,22);
+  assert.equal(new Set(catalog.map(m => m.id)).size,22);
+  assert.equal(new Set(catalog.map(m => m.href)).size,22);
   assert.equal(qaData.httpGroups.flatMap(g => g.codes).length,25);
-  const types = new Set(['paragraph','list','table','code','note','diagram','links']);
+  const types = new Set(['paragraph','list','table','code','note','diagram','links','checklist']);
   for (const [i,meta] of catalog.entries()) {
     assert.equal(meta.href,'/'+meta.id);
     if (meta.file) assert.ok(fs.existsSync('web'+meta.file));
     const content = contents[i];
     assert.ok(content.topics.length >= 3,meta.id);
     assert.equal(new Set(content.topics.map(t => t.id)).size,content.topics.length,meta.id);
-    if (!['http-codes','glossary'].includes(meta.id)) assert.ok(content.topics.some(t => t.id === 'checklist'),meta.id);
+    if (!['http-codes','glossary','what-to-test'].includes(meta.id)) assert.ok(content.topics.some(t => t.id === 'checklist'),meta.id);
     for (const topic of content.topics) {
       assert.match(topic.id,/^[a-z0-9-]+$/);
       assert.ok(topic.title && topic.blocks.length);
@@ -90,4 +90,19 @@ test('SQL examples produce the documented rows and rollback restores data', () =
     assert.equal(db.prepare('SELECT COUNT(*) AS n FROM orders').get().n,3);
     assert.equal(db.prepare('SELECT COUNT(email) AS n FROM users').get().n,2);
   } finally { db.close(); }
+});
+
+test('ready-made checklists: 12 scenarios, stable IDs and searchable expectations', () => {
+ const scenarios=qaModules['what-to-test'].topics;
+ assert.equal(scenarios.length,12);
+ assert.equal(scenarios[0].id,'login');
+ assert.equal(scenarios[0].blocks[0].items.length,15);
+ for(const scenario of scenarios) {
+  const items=scenario.blocks[0].items;
+  assert.ok(items.length>=12);
+  assert.equal(new Set(items.map(i=>i.id)).size,items.length);
+  items.forEach(i=>assert.ok(i.id && i.title && i.expected));
+ }
+ assert.ok(qaKnowledge.search(index,'Remember me').some(r=>r.href==='/what-to-test#login'));
+ assert.ok(qaKnowledge.search(index,'високосном').some(r=>r.href==='/what-to-test#dates'));
 });

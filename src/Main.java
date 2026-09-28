@@ -15,6 +15,8 @@ public class Main {
             Map.entry("/styles.css", "styles.css"),
             Map.entry("/data.js", "data.js"),
             Map.entry("/knowledge.js", "knowledge.js"),
+            Map.entry("/what-to-test", "checklists.html"),
+            Map.entry("/checklists.js", "checklists.js"),
             Map.entry("/app.js", "app.js")
     );
 
@@ -22,7 +24,7 @@ public class Main {
             "devtools", "api-testing", "sql", "bug-reports", "test-cases", "test-design",
             "http", "browser-storage", "git", "command-line", "mobile-qa", "logs",
             "security", "performance", "automation", "ci-cd", "architecture",
-            "testing-types", "qa-metrics", "glossary"
+            "testing-types", "qa-metrics", "glossary", "what-to-test"
     );
 
     private static String resolveFile(String path) {
