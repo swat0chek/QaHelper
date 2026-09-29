@@ -28,9 +28,10 @@ let ws;
   const pages = await (await fetch('http://127.0.0.1:'+port+'/json')).json();
   ws = new WebSocket(pages.find(p => p.type === 'page').webSocketDebuggerUrl);
   await new Promise((resolve,reject) => {ws.addEventListener('open',resolve,{once:true});ws.addEventListener('error',reject,{once:true});});
-  let id=0; const pending = new Map(); const exceptions=[];
+  let id=0; const pending = new Map(); const exceptions=[]; const requests=[];
   ws.addEventListener('message',event => {
     const message=JSON.parse(event.data);
+    if (message.method === 'Network.requestWillBeSent') requests.push(message.params.request);
     if (message.method === 'Runtime.exceptionThrown') exceptions.push(message.params.exceptionDetails);
     if (pending.has(message.id)) {
       const item=pending.get(message.id);pending.delete(message.id);clearTimeout(item.timer);
@@ -62,22 +63,22 @@ let ws;
   };
   const viewport=(width,height=950) => send('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:width<500});
   const noOverflow=async label => assert.ok(await evaluate('document.documentElement.scrollWidth <= innerWidth'),label);
-  await send('Page.enable');await send('Runtime.enable');
+  await send('Page.enable');await send('Runtime.enable');await send('Network.enable');
   await send('Emulation.setFocusEmulationEnabled',{enabled:true});
   await viewport(1440);
   const context=vm.createContext({window:{}});vm.runInContext(fs.readFileSync('web/data.js','utf8'),context);
   for(const meta of context.window.qaData.sections) {
     await go(meta.href);
     assert.ok(await evaluate('document.querySelector("h1").textContent.length > 0'),meta.id);
-    const expected=meta.id==='http-codes'?25:['what-to-test','troubleshooting'].includes(meta.id)?1:3;
+    const expected=meta.id==='http-codes'?25:['what-to-test','troubleshooting','toolbox'].includes(meta.id)?1:3;
     const count=await evaluate(meta.id==='http-codes'?'document.querySelectorAll(".code-row").length':'document.querySelectorAll(".article-topic").length');
     assert.ok(count>=expected,meta.id);
-    if (!['what-to-test','troubleshooting'].includes(meta.id)) assert.equal(await evaluate(`Array.from(document.querySelectorAll('.topic-nav a,.category-nav a')).every(a => document.getElementById(a.hash.slice(1)))`),true,meta.id);
+    if (!['what-to-test','troubleshooting','toolbox'].includes(meta.id)) assert.equal(await evaluate(`Array.from(document.querySelectorAll('.topic-nav a,.category-nav a')).every(a => document.getElementById(a.hash.slice(1)))`),true,meta.id);
     await noOverflow(meta.id);
   }
-  console.log('All 23 pages rendered, headings and anchors verified.');
+  console.log('All 24 pages rendered, headings and anchors verified.');
   await go('/');
-  assert.equal(await evaluate('document.querySelectorAll("#section-grid a.section-card").length'),23);
+  assert.equal(await evaluate('document.querySelectorAll("#section-grid a.section-card").length'),24);
   assert.equal(await evaluate('document.querySelectorAll(".card-pending").length'),0);
   await evaluate(`document.querySelector('a.section-card[href="/http-codes"]').click()`);
   await until("location.pathname === '/http-codes'");await ready();
@@ -122,7 +123,7 @@ let ws;
   console.log('Clipboard success and failure verified.');
   for (const width of [1440,1024,768,390,320]) {
     await viewport(width);
-    for (const route of ['/','/practice','/sql','/architecture','/http-codes','/what-to-test','/troubleshooting']) {
+    for (const route of ['/','/practice','/sql','/architecture','/http-codes','/what-to-test','/troubleshooting','/toolbox']) {
       await go(route);await noOverflow(width+' '+route);
       if(route==='/') await screenshot('home-'+width);
       if(route==='/practice' && width===390) await screenshot('practice-mobile');
@@ -199,8 +200,8 @@ let ws;
   await go('/');
   assert.equal(await evaluate('document.querySelectorAll(".intent-card").length'),3);
   assert.equal(await evaluate('document.querySelectorAll(".quick-card").length'),4);
-  assert.equal(await evaluate('document.querySelector(".unavailable-card").hasAttribute("href")'),false);
-  assert.equal(await evaluate('document.querySelector(".unavailable-card").tabIndex'),-1);
+  assert.equal(await evaluate("document.querySelector('a.quick-card[href=\"/toolbox\"]') !== null"),true);
+
   await evaluate('document.querySelector(".skip-link").focus()');
   await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
   await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
@@ -296,6 +297,54 @@ let ws;
   await viewport(390);await go('/troubleshooting#cors');await noOverflow('Troubleshooting mobile');await screenshot('troubleshooting-mobile');
   await viewport(1440);await go('/troubleshooting#api-500');await screenshot('troubleshooting-desktop');
   console.log('Troubleshooting: all symptoms, six sections, direct URLs, keyboard and history verified.');
+
+
+  await go('/toolbox?q=JWT#jwt');
+  await delay(150);
+  const beforeRequests=requests.length;
+  await evaluate('document.getElementById("tool-example").click()');
+  assert.ok(await evaluate('document.getElementById("tool-output").value.includes("qa-demo")'));
+  await evaluate('document.getElementById("tool-copy").click()');
+  await until('document.querySelector(".tool-form [role=status]").textContent.includes("скопирован")');
+  assert.ok((await evaluate('navigator.clipboard.readText()')).includes('qa-demo'));
+  await delay(150);
+  assert.equal(requests.length,beforeRequests,'JWT operations cause no network requests');
+  assert.equal(await evaluate('Object.keys(localStorage).some(k=>/toolbox|jwt/i.test(k))'),false);
+  const toolIds=await evaluate('Array.from(document.querySelectorAll("[data-tool]")).map(a=>a.dataset.tool)');
+  assert.equal(toolIds.length,11);
+  for(const id of toolIds) {
+    await evaluate('document.querySelector('+JSON.stringify('[data-tool="'+id+'"]')+').click()');
+    assert.equal(await evaluate('document.activeElement.id'),'tool-title');
+    await evaluate('document.getElementById("tool-example").click()');
+    assert.equal(await evaluate('document.getElementById("tool-error").textContent'),'');
+    assert.ok(await evaluate('document.getElementById("tool-output").value.length>0'),id);
+    await evaluate('document.getElementById("tool-clear").click()');
+    assert.equal(await evaluate('document.getElementById("tool-input-0").value'),'');
+    assert.equal(await evaluate('document.getElementById("tool-output").value'),'');
+    assert.equal(await evaluate('document.getElementById("tool-copy").disabled'),true);
+  }
+  await go('/toolbox#json-format');
+  await evaluate('document.getElementById("tool-input-0").value="{broken";document.getElementById("tool-run").click()');
+  assert.ok(await evaluate('document.getElementById("tool-error").textContent.includes("JSON")'));
+  await evaluate('document.getElementById("tool-example").click();document.getElementById("tool-input-0").dispatchEvent(new Event("input"))');
+  assert.equal(await evaluate('document.getElementById("tool-copy").disabled'),true);
+  await evaluate('document.querySelector("[data-tool=base64]").focus()');
+  await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+  await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+  await until('location.hash==="#base64"');
+  assert.equal(await evaluate('document.activeElement.id'),'tool-title');
+  await evaluate('document.getElementById("tool-mode").value="decode";document.getElementById("tool-example").click()');
+  assert.equal(await evaluate('document.getElementById("tool-output").value'),'Привет, QA!');
+  await evaluate('Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:()=>Promise.reject(new Error("denied"))}});document.getElementById("tool-copy").click()');
+  await until('document.querySelector(".tool-form [role=status]").textContent.includes("Ctrl+C")');
+  await evaluate('history.back()');await until('location.hash==="#json-format"');
+  await go('/toolbox#unknown');assert.equal(await evaluate('location.hash'),'#json-format');
+  for(const width of [1440,1024,768,390,320]) {
+    await viewport(width);await go('/toolbox#json-diff');
+    await evaluate('document.getElementById("tool-example").click()');
+    await noOverflow('Toolbox '+width);await screenshot('toolbox-'+width);
+  }
+  console.log('Toolbox: 11 examples, errors, clear/copy, keyboard, history, responsive layouts and local-only JWT verified.');
 
   assert.equal(exceptions.length,0,JSON.stringify(exceptions));
   console.log('Responsive layouts 1440/768/390/320 verified; no browser exceptions.');
