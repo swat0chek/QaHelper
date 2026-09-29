@@ -144,9 +144,25 @@ window.qaModules.toolbox = (() => {
     ],
     "modes": []
   }
-, {"id":"test-data-generator","title":"Test Data Generator","renderer":"generator","purpose":"Создать тестовые имя, email, телефон, UUID, число, строку, дату, IPv4, URL, JSON или список значений.","help":"Обычная генерация и Edge Cases / Problematic Data: пустая строка, пробелы, Unicode, emoji, кириллица, дефис, апостроф, длинная строка, перенос строки, HTML-like input и специальные символы. Для тестовых сред и проверки валидации. Всё локально; запросы, звонки и отправка писем не выполняются.","example":[],"modes":[]}
+, {"id":"test-data-generator","title":"Test Data Generator","renderer":"generator","purpose":"Создать тестовые имя, email, телефон, UUID, число, строку, дату, IPv4, URL, JSON или список значений.","help":"Обычная генерация и Edge Cases / Problematic Data: пустая строка, пробелы, Unicode, emoji, кириллица, дефис, апостроф, длинная строка, перенос строки, HTML-like input и специальные символы. Для тестовых сред и проверки валидации. Всё локально; запросы, звонки и отправка писем не выполняются.","example":[],"modes":[]},
+  {
+    "id": "boundary-value-generator",
+    "title": "Boundary Value Generator",
+    "renderer": "boundary",
+    "purpose": "Анализ граничных значений: шесть точек для числового диапазона или длины строки. Копируйте значения и готовый checklist.",
+    "help": "Boundary Value Analysis дополняет Equivalence Partitioning: проверяйте значения рядом с границами, а представителей классов выбирайте по правилам продукта. Числа и строки рассчитываются локально.",
+    "related": [
+      [
+        "Boundary Value Analysis и Equivalence Partitioning — теория и пример",
+        "/test-design#boundaries"
+      ]
+    ],
+    "example": [],
+    "modes": []
+  }
 ];
   return {tools, topics: tools.map(tool => ({id:tool.id, title:tool.title, blocks:[
-    {type:'paragraph', text:tool.purpose}, {type:'note', text:tool.help}
+    {type:'paragraph', text:tool.purpose}, {type:'note', text:tool.help},
+    ...(tool.related ? [{type:'links',items:tool.related}] : [])
   ]}))};
 })();

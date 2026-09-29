@@ -311,8 +311,8 @@ let ws;
   assert.equal(requests.length,beforeRequests,'JWT operations cause no network requests');
   assert.equal(await evaluate('Object.keys(localStorage).some(k=>/toolbox|jwt/i.test(k))'),false);
   const toolIds=await evaluate('Array.from(document.querySelectorAll("[data-tool]")).map(a=>a.dataset.tool)');
-  assert.equal(toolIds.length,12);
-  for(const id of toolIds.filter(id=>id!=="test-data-generator")) {
+  assert.equal(toolIds.length,13);
+  for(const id of toolIds.filter(id=>!["test-data-generator","boundary-value-generator"].includes(id))) {
     await evaluate('document.querySelector('+JSON.stringify('[data-tool="'+id+'"]')+').click()');
     assert.equal(await evaluate('document.activeElement.id'),'tool-title');
     await evaluate('document.getElementById("tool-example").click()');
@@ -407,6 +407,59 @@ let ws;
   await send('Page.reload');await ready();
   assert.equal(await evaluate('document.querySelectorAll(".generator-result").length'),0);
   console.log('Test Data Generator: 11 types, 12 edge cases, ranges, copies, regenerate, keyboard, no network and responsive layouts verified.');
+
+
+  await go('/toolbox#boundary-value-generator');await delay(100);
+  const boundaryRequests=requests.length;
+  const setBoundary=async(key,value)=>evaluate('document.getElementById('+JSON.stringify('boundary-'+key)+').value='+JSON.stringify(String(value))+';document.getElementById('+JSON.stringify('boundary-'+key)+').dispatchEvent(new Event("input"))');
+  const generateBoundary=async()=>evaluate('document.getElementById("boundary-generate").click()');
+  await generateBoundary();
+  assert.equal(await evaluate('document.getElementById("boundary-export").value'),'2\n3\n4\n49\n50\n51');
+  assert.equal(await evaluate('document.querySelectorAll(".generator-result").length'),6);
+  await evaluate('document.getElementById("boundary-copy-values").click()');
+  await until('document.querySelector(".tool-form [role=status]").textContent.includes("Скопировано")');
+  assert.equal((await evaluate('navigator.clipboard.readText()')).replace(/\r\n/g,'\n'),'2\n3\n4\n49\n50\n51');
+  await evaluate('document.getElementById("boundary-copy-checklist").click()');
+  await until('navigator.clipboard.readText().then(v=>v.startsWith("# Boundary"))');
+  assert.equal((await evaluate('navigator.clipboard.readText()')).split('- [ ]').length-1,6);
+  await setBoundary('min','-0.1');await setBoundary('max','0.1');await setBoundary('step','0.1');await generateBoundary();
+  assert.equal(await evaluate('document.getElementById("boundary-export").value'),'-0.2\n-0.1\n0\n0\n0.1\n0.2');
+  for(const [min,max] of [['','5'],['5',''],['6','5'],['abc','5']]){
+    await setBoundary('min',min);await setBoundary('max',max);await generateBoundary();
+    assert.ok(await evaluate('document.getElementById("boundary-error").textContent.length>0'));
+    assert.equal(await evaluate('document.getElementById("boundary-copy-values").disabled'),true);
+  }
+  await setBoundary('min','5');await setBoundary('max','5');await generateBoundary();
+  assert.ok(await evaluate('document.querySelector(".tool-form .content-note").textContent.includes("min = max")'));
+  await setBoundary('mode','length');await setBoundary('min','3');await setBoundary('max','50');await generateBoundary();
+  assert.equal(await evaluate('document.getElementById("boundary-step").disabled'),true);
+  const boundaryStrings=JSON.parse(await evaluate('document.getElementById("boundary-export").value'));
+  assert.deepEqual(boundaryStrings.map(s=>s.length),[2,3,4,49,50,51]);
+  await evaluate('document.getElementById("boundary-copy-values").click()');
+  await until('navigator.clipboard.readText().then(v=>v.startsWith("["))');
+  assert.deepEqual(JSON.parse(await evaluate('navigator.clipboard.readText()')),boundaryStrings);
+  await setBoundary('min',0);await setBoundary('max',0);await generateBoundary();
+  assert.deepEqual(JSON.parse(await evaluate('document.getElementById("boundary-export").value')),['','A','','A']);
+  assert.equal(await evaluate('document.querySelectorAll(".generator-result textarea").length'),4);
+  await evaluate('Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:()=>Promise.reject(new Error("denied"))}});document.getElementById("boundary-copy-checklist").click()');
+  await until('document.querySelector(".tool-form [role=status]").textContent.includes("Ctrl+C")');
+  assert.equal(await evaluate('document.activeElement.id'),'boundary-export');
+  assert.deepEqual(requests.slice(boundaryRequests).filter(r=>!r.url.startsWith('data:')),[]);
+  await evaluate('document.getElementById("boundary-clear").click()');
+  assert.equal(await evaluate('document.activeElement.id'),'boundary-min');
+  assert.equal(await evaluate('document.getElementById("boundary-min").value'),'');
+  await setBoundary('min',3);await setBoundary('max',50);
+  await evaluate('document.getElementById("boundary-generate").focus()');
+  await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13,text:'\r',unmodifiedText:'\r'});
+  await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+  await until('document.querySelectorAll(".generator-result").length===6');
+  assert.ok(await evaluate('Array.from(document.querySelectorAll(".utility a")).some(a=>a.pathname==="/test-design" && a.hash==="#boundaries")'));
+  for(const width of [1440,1024,768,390,320]) {
+    await viewport(width);await go('/toolbox#boundary-value-generator');
+    await setBoundary('mode','length');await setBoundary('min',3);await setBoundary('max',50);await generateBoundary();
+    await noOverflow('Boundary '+width);await evaluate('document.getElementById("boundary-mode").scrollIntoView({block:"start"})');await screenshot('boundary-'+width);
+  }
+  console.log('Boundary generator: exact decimals, six roles, invalid bounds, strings, clipboard, keyboard, links, no network and responsive layouts verified.');
 
   assert.equal(exceptions.length,0,JSON.stringify(exceptions));
   console.log('Responsive layouts 1440/768/390/320 verified; no browser exceptions.');

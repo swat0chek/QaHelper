@@ -19,7 +19,10 @@ async function initializeToolbox() {
     const section=element('section','article-topic utility');section.id=tool.id;
     const title=element('h2','',tool.title);title.id='tool-title';title.tabIndex=-1;
     section.append(title,element('p','',tool.purpose),element('aside','content-note',tool.help));
-    if(tool.renderer==='generator') {
+    if(tool.related) section.append(renderBlock({type:'links',items:tool.related}));
+    if(tool.renderer==='boundary') {
+      window.qaBoundaryUI(section);
+    } else if(tool.renderer==='generator') {
       window.qaGeneratorUI(section);
     } else {
       const form=element('form','tool-form');form.noValidate=true;

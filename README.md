@@ -124,7 +124,7 @@ window.qaModules['example'] = {
 ```shell
 java --source 17 src/Main.java 8081
 # В другом терминале:
-node --test tests/knowledge.test.cjs tests/toolbox.test.cjs tests/data-generator.test.cjs
+node --test tests/knowledge.test.cjs tests/toolbox.test.cjs tests/data-generator.test.cjs tests/boundary-generator.test.cjs
 node tests/browser.cjs
 ```
 
@@ -177,7 +177,7 @@ node tests/browser.cjs
 
 ## QA Toolbox
 
-**/toolbox** — 12 инструментов: JSON Formatter / Validator, JSON Minify, JSON Diff, Text Diff, Base64 Encode/Decode, URL Encode/Decode, UUID Generator, Unix Timestamp ↔ Date, Character Counter, Byte Counter, JWT Decoder и Test Data Generator.
+**/toolbox** — 13 инструментов: JSON Formatter / Validator, JSON Minify, JSON Diff, Text Diff, Base64 Encode/Decode, URL Encode/Decode, UUID Generator, Unix Timestamp ↔ Date, Character Counter, Byte Counter, JWT Decoder, Test Data Generator и Boundary Value Generator.
 
 Выберите инструмент, введите данные или нажмите «Пример», затем «Выполнить». Для каждого доступны результат, копирование, очистка, описание применения и сообщения об ошибках. Выбор инструмента хранится в hash URL (например, /toolbox#jwt); содержимое полей не записывается в URL или browser storage и очищается при переключении инструмента.
 
@@ -215,3 +215,18 @@ Email/URL используют зарезервированный .test ([RFC 26
 web/data-generator.js содержит типы, edge cases, проверки настроек и генерацию. web/data-generator-ui.js содержит общий renderer настроек и результатов; он подключается через renderer: 'generator' в конфигурации Toolbox. Для новых типов и случаев не нужны отдельные страницы.
 
 Тесты проверяют все типы и edge cases, диапазоны, длину, календарные границы, сохранность Copy/Copy all, Regenerate, некорректные настройки, отсутствие сетевых запросов, клавиатуру и размеры mobile/tablet/desktop.
+
+
+## Boundary Value Generator
+
+**/toolbox#boundary-value-generator** — генератор для Boundary Value Analysis, связанный с материалом **/test-design#boundaries** об анализе границ и Equivalence Partitioning. Обратная ссылка есть и в теории; инструмент доступен через поиск.
+
+Числовой режим строит шесть точек: min − шаг, min, min + шаг, max − шаг, max, max + шаг. Шаг по умолчанию 1. Для decimal задайте шаг по требованиям, например 0.01. Поддерживаются отрицательные числа, точка и запятая как десятичный разделитель, до 30 цифр целой части и 12 дробных. Расчёт через масштабированные BigInt сохраняет точность; экспоненциальная запись не поддерживается.
+
+Режим длины строки принимает целые minLength/maxLength от 0 до 10 000 и создаёт строки из A с шагом 1. Например, 3–50 → длины 2, 3, 4, 49, 50, 51. Максимальная создаваемая строка — 10 001 символ. ASCII A занимает одну графему, одну UTF-16 единицу и один байт UTF-8. Нулевая длина даёт пустую строку; отрицательная длина отмечается как невозможная и не попадает в Copy values.
+
+Каждая точка показывает формулу, положение относительно соответствующей границы и принадлежность всему диапазону. Границы считаются включёнными; ожидаемое поведение нужно сверять с требованиями. При min = max или пересечении соседних точек все шесть ролей сохраняются с отметкой о совпадении. При узком диапазоне min + шаг может оказаться выше max — класс определяется фактическим значением.
+
+Generate строит точки. Copy values копирует числа по одному на строку, а в режиме длины — JSON-массив настоящих строк, сохраняющий пустые значения. Copy as checklist создаёт Markdown с шестью пояснёнными точками; невозможные отрицательные длины помечаются как пропущенные. При недоступном Clipboard API экспорт выделяется для ручного копирования. Изменение настроек убирает устаревший результат; отсутствующие границы, min > max, некорректные числа, дробные/отрицательные длины и неположительный шаг показывают ошибку.
+
+web/boundary-generator.js — вычисления и экспорт; web/boundary-generator-ui.js — UI на общем каркасе Toolbox. Все операции локальны, без сети и сохранения ввода. Тесты охватывают decimal, совпадения, нулевую длину, ограничения, копирование, ссылки на теорию, клавиатуру и адаптивность.
