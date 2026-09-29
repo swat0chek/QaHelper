@@ -133,10 +133,10 @@ let ws;
   }
 
   await go('/what-to-test#login');
-  for (const scenario of ['registration','search','filters','pagination','upload','cart','payment','email','tables','dates','api','login']) {
+  for (const scenario of ['registration','search','filters','sorting','pagination','forms','upload','cart','promo-codes','checkout','payment','profile','email','tables','dates','api','login']) {
     await evaluate('document.querySelector(' + JSON.stringify('a[data-scenario="'+scenario+'"]') + ').click()');
     await until('document.querySelector(".interactive-checklist").id === ' + JSON.stringify(scenario));
-    assert.ok(await evaluate('document.querySelectorAll(".check-item input").length >= 12'));
+    assert.ok(await evaluate('document.querySelectorAll(".check-item input").length >= 15'));
   }
   assert.equal(await evaluate('document.querySelectorAll(".check-item").length'),15);
   await evaluate('localStorage.clear()');
@@ -220,6 +220,55 @@ let ws;
   await go('/?q=SELECT');
   assert.ok(await evaluate('document.getElementById("library").getBoundingClientRect().top < innerHeight'));
   console.log('Task entries, quick access, practice links, focus and visible search verified.');
+
+
+  await go('/what-to-test#login');
+  await evaluate('localStorage.clear()'); await send('Page.reload');await ready();
+  const filter=async (text,category='')=>{
+   await evaluate('document.getElementById("checklist-search").value='+JSON.stringify(text));
+   await evaluate('document.getElementById("checklist-category").value='+JSON.stringify(category));
+   await evaluate('document.getElementById("checklist-search").dispatchEvent(new Event("input",{bubbles:true}))');
+  };
+  await filter('Remember','login');
+  assert.equal(await evaluate('document.querySelectorAll("#scenario-results a").length'),1);
+  assert.ok(await evaluate('document.querySelectorAll(".check-item mark").length>0'));
+  await evaluate('document.querySelector("[data-action=all]").click()');
+  assert.equal(await evaluate('document.querySelectorAll(".check-item input:checked").length'),15);
+  assert.equal(await evaluate('document.querySelector("progress").value'),15);
+  await send('Page.reload');await ready();
+  assert.equal(await evaluate('document.getElementById("checklist-search").value'),'Remember');
+  assert.equal(await evaluate('document.getElementById("checklist-category").value'),'login');
+  await evaluate('document.querySelector("[data-action=copy]").click()');
+  await until('document.querySelector(".check-message").textContent.includes("скопирован")');
+  const md=await evaluate('navigator.clipboard.readText()');
+  assert.ok(md.startsWith('# Авторизация'));
+  assert.equal(md.split('- [x]').length-1,15);
+  await evaluate('document.getElementById("checklist-format").value="text"');
+  await evaluate('document.getElementById("checklist-format").dispatchEvent(new Event("change"))');
+  await evaluate('document.querySelector("[data-action=copy]").click()');
+  await until('navigator.clipboard.readText().then(text=>text.startsWith("Авторизация"))');
+  const plain=await evaluate('navigator.clipboard.readText()');assert.ok(!plain.startsWith('#'));assert.ok(plain.includes('[x] Пустые поля'));
+  await filter('нетсовпадений123','forms');
+  assert.ok(await evaluate('Boolean(document.querySelector(".scenario-empty"))'));
+  assert.equal(await evaluate('document.querySelectorAll(".check-item input:checked").length'),15);
+  await evaluate('document.querySelector("[data-action=reset]").click()');
+  assert.equal(await evaluate('document.querySelector("progress").value'),0);
+  await evaluate('document.querySelector("[data-action=undo]").click()');
+  assert.equal(await evaluate('document.querySelector("progress").value'),15);
+  await filter('<img onerror=alert(1)>');
+  assert.equal(await evaluate('document.querySelectorAll("#scenario-results img").length'),0);
+  await filter('','forms');
+  await evaluate('document.querySelector("a[data-scenario=forms]").click()');
+  await until('document.querySelector(".interactive-checklist").id==="forms"');
+  assert.equal(await evaluate('document.querySelector("progress").value'),0);
+  await evaluate('history.back()');
+  await until('document.querySelector(".interactive-checklist").id==="login"');
+  assert.equal(await evaluate('document.querySelector("progress").value'),15);
+  await go('/what-to-test?category=bad&checklist-search=remember&q=SQL#bad');
+  assert.equal(await evaluate('document.getElementById("checklist-category").value'),'');
+  assert.equal(await evaluate('location.hash'),'#login');
+  assert.ok(await evaluate('document.querySelector(".return-link").href.includes("q=SQL")'));
+  console.log('Library filters, full-list actions, progress, exports, URL and compatibility verified.');
 
   assert.equal(exceptions.length,0,JSON.stringify(exceptions));
   console.log('Responsive layouts 1440/768/390/320 verified; no browser exceptions.');

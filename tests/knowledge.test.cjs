@@ -92,17 +92,45 @@ test('SQL examples produce the documented rows and rollback restores data', () =
   } finally { db.close(); }
 });
 
-test('ready-made checklists: 12 scenarios, stable IDs and searchable expectations', () => {
+test('ready-made checklists: 17 scenarios, stable IDs and searchable expectations', () => {
  const scenarios=qaModules['what-to-test'].topics;
- assert.equal(scenarios.length,12);
+ const kindSet=new Set(['positive','negative','boundary','ui-ux','technical']);
+ for(const s of scenarios){
+  const covered=new Set(s.blocks[0].items.flatMap(i=>i.kinds));
+  for(const kind of kindSet)assert.ok(covered.has(kind),s.id+' '+kind);
+ }
+
+ assert.equal(scenarios.length,17);
  assert.equal(scenarios[0].id,'login');
  assert.equal(scenarios[0].blocks[0].items.length,15);
  for(const scenario of scenarios) {
   const items=scenario.blocks[0].items;
-  assert.ok(items.length>=12);
+  assert.ok(items.length>=15);
   assert.equal(new Set(items.map(i=>i.id)).size,items.length);
   items.forEach(i=>assert.ok(i.id && i.title && i.expected));
  }
  assert.ok(qaKnowledge.search(index,'Remember me').some(r=>r.href==='/what-to-test#login'));
  assert.ok(qaKnowledge.search(index,'високосном').some(r=>r.href==='/what-to-test#dates'));
+});
+
+test('checklist search and Markdown/plain text export',()=>{
+ const local=vm.createContext({window:{},document:{body:{dataset:{}}}});
+ vm.runInContext(fs.readFileSync('web/checklists.js','utf8'),local);
+ const tools=local.window.qaChecklistTools, scenarios=qaModules['what-to-test'].topics;
+ assert.equal(tools.find(scenarios,'').length,17);
+ assert.equal(tools.find(scenarios,'','sorting').length,1);
+ assert.equal(tools.find(scenarios,'nothing-123').length,0);
+ assert.ok(tools.find(scenarios,'remember ME').some(r=>r.scenario.id==='login'));
+ assert.equal(tools.find(scenarios,'remember','forms').length,0);
+ assert.ok(tools.find(scenarios,'срок код','email').length);
+ assert.equal(tools.find(scenarios,'отчет').length,tools.find(scenarios,'отчёт').length);
+ const scenario={title:'Title *x*',blocks:[{items:[{id:'a',title:'[item]',expected:'<b>safe</b>'}]}]};
+ const plain=tools.exportText(scenario,new Set(['a']),'text');
+ const md=tools.exportText(scenario,new Set(['a']),'markdown');
+ assert.ok(plain.startsWith('Title *x*'));
+ assert.ok(plain.includes('[x] [item] — <b>safe</b>'));
+ assert.ok(md.startsWith('# Title '));
+ assert.ok(md.includes('- [x] '));
+ assert.ok(!md.includes('<b>'));
+ assert.ok(md.includes(String.fromCharCode(92)+'['));
 });
