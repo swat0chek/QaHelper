@@ -69,15 +69,15 @@ let ws;
   for(const meta of context.window.qaData.sections) {
     await go(meta.href);
     assert.ok(await evaluate('document.querySelector("h1").textContent.length > 0'),meta.id);
-    const expected=meta.id==='http-codes'?25:meta.id==='what-to-test'?1:3;
+    const expected=meta.id==='http-codes'?25:['what-to-test','troubleshooting'].includes(meta.id)?1:3;
     const count=await evaluate(meta.id==='http-codes'?'document.querySelectorAll(".code-row").length':'document.querySelectorAll(".article-topic").length');
     assert.ok(count>=expected,meta.id);
-    if (meta.id !== 'what-to-test') assert.equal(await evaluate(`Array.from(document.querySelectorAll('.topic-nav a,.category-nav a')).every(a => document.getElementById(a.hash.slice(1)))`),true,meta.id);
+    if (!['what-to-test','troubleshooting'].includes(meta.id)) assert.equal(await evaluate(`Array.from(document.querySelectorAll('.topic-nav a,.category-nav a')).every(a => document.getElementById(a.hash.slice(1)))`),true,meta.id);
     await noOverflow(meta.id);
   }
-  console.log('All 22 pages rendered, headings and anchors verified.');
+  console.log('All 23 pages rendered, headings and anchors verified.');
   await go('/');
-  assert.equal(await evaluate('document.querySelectorAll("#section-grid a.section-card").length'),22);
+  assert.equal(await evaluate('document.querySelectorAll("#section-grid a.section-card").length'),23);
   assert.equal(await evaluate('document.querySelectorAll(".card-pending").length'),0);
   await evaluate(`document.querySelector('a.section-card[href="/http-codes"]').click()`);
   await until("location.pathname === '/http-codes'");await ready();
@@ -122,7 +122,7 @@ let ws;
   console.log('Clipboard success and failure verified.');
   for (const width of [1440,1024,768,390,320]) {
     await viewport(width);
-    for (const route of ['/','/practice','/sql','/architecture','/http-codes','/what-to-test']) {
+    for (const route of ['/','/practice','/sql','/architecture','/http-codes','/what-to-test','/troubleshooting']) {
       await go(route);await noOverflow(width+' '+route);
       if(route==='/') await screenshot('home-'+width);
       if(route==='/practice' && width===390) await screenshot('practice-mobile');
@@ -269,6 +269,33 @@ let ws;
   assert.equal(await evaluate('location.hash'),'#login');
   assert.ok(await evaluate('document.querySelector(".return-link").href.includes("q=SQL")'));
   console.log('Library filters, full-list actions, progress, exports, URL and compatibility verified.');
+
+
+  await go('/troubleshooting');
+  assert.equal(await evaluate('document.querySelectorAll("a[data-symptom]").length'),16);
+  const symptoms=await evaluate('Array.from(document.querySelectorAll("a[data-symptom]")).map(a=>a.dataset.symptom)');
+  for(const id of symptoms){
+   await evaluate('document.querySelector('+JSON.stringify('a[data-symptom="'+id+'"]')+').click()');
+   await until('document.querySelector(".diagnostic-scenario").id==='+JSON.stringify(id));
+   assert.equal(await evaluate('document.querySelectorAll(".diagnostic-scenario h3").length'),6);
+   assert.ok(await evaluate('document.querySelectorAll(".diagnostic-scenario ol li").length>=5'));
+  }
+  await go('/troubleshooting?q=timeout#api-timeout');
+  assert.equal(await evaluate('document.querySelector(".diagnostic-scenario").id'),'api-timeout');
+  assert.ok(await evaluate('document.querySelector(".return-link").href.includes("q=timeout")'));
+  await send('Page.reload');await ready();
+  assert.equal(await evaluate('document.querySelector(".diagnostic-scenario").id'),'api-timeout');
+  await evaluate('document.querySelector("a[data-symptom=cors]").focus()');
+  await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+  await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+  await until('document.querySelector(".diagnostic-scenario").id==="cors"');
+  assert.equal(await evaluate('document.activeElement.id'),'symptom-title');
+  await evaluate('history.back()');await until('document.querySelector(".diagnostic-scenario").id==="api-timeout"');
+  await go('/troubleshooting#unknown');
+  assert.equal(await evaluate('location.hash'),'#api-400');
+  await viewport(390);await go('/troubleshooting#cors');await noOverflow('Troubleshooting mobile');await screenshot('troubleshooting-mobile');
+  await viewport(1440);await go('/troubleshooting#api-500');await screenshot('troubleshooting-desktop');
+  console.log('Troubleshooting: all symptoms, six sections, direct URLs, keyboard and history verified.');
 
   assert.equal(exceptions.length,0,JSON.stringify(exceptions));
   console.log('Responsive layouts 1440/768/390/320 verified; no browser exceptions.');

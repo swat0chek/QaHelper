@@ -14,19 +14,19 @@ const contents = catalog.map(meta => meta.id === 'http-codes' ? {
 } : qaModules[meta.id]);
 const index = qaKnowledge.index(catalog,contents);
 
-test('22 unique modules; valid structured content and links', () => {
-  assert.equal(catalog.length,22);
-  assert.equal(new Set(catalog.map(m => m.id)).size,22);
-  assert.equal(new Set(catalog.map(m => m.href)).size,22);
+test('23 unique modules; valid structured content and links', () => {
+  assert.equal(catalog.length,23);
+  assert.equal(new Set(catalog.map(m => m.id)).size,23);
+  assert.equal(new Set(catalog.map(m => m.href)).size,23);
   assert.equal(qaData.httpGroups.flatMap(g => g.codes).length,25);
-  const types = new Set(['paragraph','list','table','code','note','diagram','links','checklist']);
+  const types = new Set(['paragraph','list','table','code','note','diagram','links','checklist','heading','ordered-list']);
   for (const [i,meta] of catalog.entries()) {
     assert.equal(meta.href,'/'+meta.id);
     if (meta.file) assert.ok(fs.existsSync('web'+meta.file));
     const content = contents[i];
     assert.ok(content.topics.length >= 3,meta.id);
     assert.equal(new Set(content.topics.map(t => t.id)).size,content.topics.length,meta.id);
-    if (!['http-codes','glossary','what-to-test'].includes(meta.id)) assert.ok(content.topics.some(t => t.id === 'checklist'),meta.id);
+    if (!['http-codes','glossary','what-to-test','troubleshooting'].includes(meta.id)) assert.ok(content.topics.some(t => t.id === 'checklist'),meta.id);
     for (const topic of content.topics) {
       assert.match(topic.id,/^[a-z0-9-]+$/);
       assert.ok(topic.title && topic.blocks.length);
@@ -34,7 +34,7 @@ test('22 unique modules; valid structured content and links', () => {
         assert.ok(types.has(block.type));
         assert.ok(qaKnowledge.blockText(block).length > 0);
         if (block.type === 'table') assert.ok(block.rows.every(row => row.length === block.headers.length),meta.id);
-        if (block.type === 'links') for (const [,href] of block.items) assert.ok(catalog.some(m => m.href === href));
+        if (block.type === 'links') for (const [,href] of block.items) assert.ok(catalog.some(m => m.href === href.split('#')[0]));
       }
     }
   }
@@ -133,4 +133,21 @@ test('checklist search and Markdown/plain text export',()=>{
  assert.ok(md.includes('- [x] '));
  assert.ok(!md.includes('<b>'));
  assert.ok(md.includes(String.fromCharCode(92)+'['));
+});
+
+test('16 diagnostic scenarios with six sections, steps and valid related anchors',()=>{
+ const topics=qaModules.troubleshooting.topics;
+ assert.equal(topics.length,16);
+ for(const topic of topics){
+  assert.equal(topic.blocks.filter(b=>b.type==='heading').length,6);
+  assert.ok(topic.blocks.find(b=>b.type==='ordered-list').items.length>=5);
+  const links=topic.blocks.find(b=>b.type==='links').items;
+  assert.ok(links.length>=2);
+  for(const [,href] of links){
+   const [route,anchor]=href.split('#');
+   const meta=catalog.find(m=>m.href===route);assert.ok(meta);
+   if(anchor)assert.ok(qaModules[meta.id]?.topics.some(t=>t.id===anchor),href);
+  }
+ }
+ assert.ok(qaKnowledge.search(index,'API timeout').some(r=>r.href==='/troubleshooting#api-timeout'));
 });
