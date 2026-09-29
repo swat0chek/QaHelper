@@ -12,6 +12,9 @@ public class Main {
     private static final Map<String, String> ROUTES = Map.ofEntries(
             Map.entry("/", "index.html"),
             Map.entry("/practice", "practice.html"),
+            Map.entry("/toolbox", "toolbox.html"),
+            Map.entry("/toolbox.js", "toolbox.js"),
+            Map.entry("/toolbox-core.js", "toolbox-core.js"),
             Map.entry("/troubleshooting", "troubleshooting.html"),
             Map.entry("/troubleshooting.js", "troubleshooting.js"),
             Map.entry("/http-codes", "http-codes.html"),
@@ -27,7 +30,7 @@ public class Main {
             "devtools", "api-testing", "sql", "bug-reports", "test-cases", "test-design",
             "http", "browser-storage", "git", "command-line", "mobile-qa", "logs",
             "security", "performance", "automation", "ci-cd", "architecture",
-            "testing-types", "qa-metrics", "glossary", "what-to-test", "troubleshooting"
+            "testing-types", "qa-metrics", "glossary", "what-to-test", "troubleshooting", "toolbox"
     );
 
     private static String resolveFile(String path) {

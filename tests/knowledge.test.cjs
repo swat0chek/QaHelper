@@ -14,10 +14,10 @@ const contents = catalog.map(meta => meta.id === 'http-codes' ? {
 } : qaModules[meta.id]);
 const index = qaKnowledge.index(catalog,contents);
 
-test('23 unique modules; valid structured content and links', () => {
-  assert.equal(catalog.length,23);
-  assert.equal(new Set(catalog.map(m => m.id)).size,23);
-  assert.equal(new Set(catalog.map(m => m.href)).size,23);
+test('24 unique modules; valid structured content and links', () => {
+  assert.equal(catalog.length,24);
+  assert.equal(new Set(catalog.map(m => m.id)).size,24);
+  assert.equal(new Set(catalog.map(m => m.href)).size,24);
   assert.equal(qaData.httpGroups.flatMap(g => g.codes).length,25);
   const types = new Set(['paragraph','list','table','code','note','diagram','links','checklist','heading','ordered-list']);
   for (const [i,meta] of catalog.entries()) {
@@ -26,7 +26,7 @@ test('23 unique modules; valid structured content and links', () => {
     const content = contents[i];
     assert.ok(content.topics.length >= 3,meta.id);
     assert.equal(new Set(content.topics.map(t => t.id)).size,content.topics.length,meta.id);
-    if (!['http-codes','glossary','what-to-test','troubleshooting'].includes(meta.id)) assert.ok(content.topics.some(t => t.id === 'checklist'),meta.id);
+    if (!['http-codes','glossary','what-to-test','troubleshooting','toolbox'].includes(meta.id)) assert.ok(content.topics.some(t => t.id === 'checklist'),meta.id);
     for (const topic of content.topics) {
       assert.match(topic.id,/^[a-z0-9-]+$/);
       assert.ok(topic.title && topic.blocks.length);

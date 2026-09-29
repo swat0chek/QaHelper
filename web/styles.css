@@ -228,3 +228,25 @@ body[data-page='troubleshooting'] .reference-intro h1 { font-size: clamp(30px,4.
 .diagnostic-sources summary { cursor: pointer; color: #6b529d; font-size: 13px; }
 #symptom-title:focus-visible { outline: 3px solid #7561dc; outline-offset: 5px; }
 @media (max-width: 900px) { body[data-page='troubleshooting'] .topic-nav { max-height: 330px; overflow-y: auto; } }
+
+/* Shared local utility workbench. */
+body[data-page="toolbox"]::before { height: 690px; }
+body[data-page="toolbox"] .reference-intro { padding-bottom: 40px; }
+body[data-page="toolbox"] .reference-intro h1 { font-size: clamp(30px,4.5vw,54px); }
+#tool-title:focus-visible { outline: 3px solid #7561dc; outline-offset: 5px; }
+@media (max-width: 900px) { body[data-page="toolbox"] .topic-nav { max-height: 330px; overflow-y: auto; } }
+.tool-form { display: grid; gap: 12px; }
+.tool-form label { display: block; font-weight: 650; margin-bottom: 7px; }
+.tool-inputs { display: grid; gap: 16px; min-width: 0; }
+.tool-pair { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+.tool-form textarea, .tool-form input, .tool-form select { box-sizing: border-box; width: 100%; min-width: 0; padding: 12px; border: 1px solid #aab5cd; border-radius: 10px; background: #fff; color: #17223c; font: 15px/1.5 monospace; }
+.tool-form textarea { resize: vertical; }
+.tool-form :is(textarea,input,select,button):focus-visible { outline: 3px solid #6758ce; outline-offset: 3px; }
+.tool-form [aria-invalid="true"] { border-color: #ac2446; }
+.tool-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.tool-actions button { min-height: 44px; }
+.tool-actions button:disabled { opacity: .5; cursor: default; }
+.tool-error { color: #9d1738; font-weight: 600; overflow-wrap: anywhere; }
+.tool-hint { color: #526079; font-size: 14px; }
+.tool-error:empty, .tool-hint:empty { display: none; }
+@media (max-width: 650px) { .tool-pair { grid-template-columns: minmax(0,1fr); } }
