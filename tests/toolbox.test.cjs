@@ -5,7 +5,7 @@ const context=vm.createContext({window:{qaModules:{}},TextEncoder,TextDecoder,at
 for(const file of ['web/toolbox-core.js','web/modules/toolbox.js'])vm.runInContext(fs.readFileSync(file,'utf8'),context);
 const run=context.window.qaToolbox.run;
 test('all 11 configured examples run locally',()=>{
- const tools=context.window.qaModules.toolbox.tools;assert.equal(tools.length,11);
+ const tools=context.window.qaModules.toolbox.tools.filter(t=>!t.renderer);assert.equal(tools.length,11);
  for(const t of tools)assert.equal(typeof run(t.id,t.example[0],t.example[1]||'',t.modes[0]?.[0]||''),'string',t.id);
 });
 test('JSON formatting, minify, invalid syntax and precision guard',()=>{

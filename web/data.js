@@ -1,7 +1,7 @@
 // Catalog metadata. Module content lives in web/modules; routes are allowlisted in Main.java.
 window.qaData = {
   sections: [
-{"id":"toolbox","title":"QA Toolbox","description":"11 локальных инструментов: JSON, Diff, Base64, URL, UUID, время и JWT.","icon":"bolt","color":"orange","href":"/toolbox","file":"/modules/toolbox.js"},
+{"id":"toolbox","title":"QA Toolbox","description":"12 локальных инструментов: JSON, Diff, Base64, URL, UUID, время, JWT и генерация данных.","icon":"bolt","color":"orange","href":"/toolbox","file":"/modules/toolbox.js"},
 {"id":"troubleshooting","title":"Troubleshooting","description":"16 симптомов: локализуйте проблему и соберите доказательства шаг за шагом.","icon":"gear","color":"blue","href":"/troubleshooting","file":"/modules/troubleshooting.js"},
 {"id":"what-to-test","title":"Что проверить?","description":"Готовые чек-листы для 17 категорий: выбирайте, проверяйте и сохраняйте отметки.","icon":"book","color":"purple","href":"/what-to-test","file":"/modules/what-to-test.js"},
   {

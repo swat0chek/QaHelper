@@ -144,6 +144,7 @@ window.qaModules.toolbox = (() => {
     ],
     "modes": []
   }
+, {"id":"test-data-generator","title":"Test Data Generator","renderer":"generator","purpose":"Создать тестовые имя, email, телефон, UUID, число, строку, дату, IPv4, URL, JSON или список значений.","help":"Обычная генерация и Edge Cases / Problematic Data: пустая строка, пробелы, Unicode, emoji, кириллица, дефис, апостроф, длинная строка, перенос строки, HTML-like input и специальные символы. Для тестовых сред и проверки валидации. Всё локально; запросы, звонки и отправка писем не выполняются.","example":[],"modes":[]}
 ];
   return {tools, topics: tools.map(tool => ({id:tool.id, title:tool.title, blocks:[
     {type:'paragraph', text:tool.purpose}, {type:'note', text:tool.help}
