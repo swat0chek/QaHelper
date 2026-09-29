@@ -311,8 +311,8 @@ let ws;
   assert.equal(requests.length,beforeRequests,'JWT operations cause no network requests');
   assert.equal(await evaluate('Object.keys(localStorage).some(k=>/toolbox|jwt/i.test(k))'),false);
   const toolIds=await evaluate('Array.from(document.querySelectorAll("[data-tool]")).map(a=>a.dataset.tool)');
-  assert.equal(toolIds.length,11);
-  for(const id of toolIds) {
+  assert.equal(toolIds.length,12);
+  for(const id of toolIds.filter(id=>id!=="test-data-generator")) {
     await evaluate('document.querySelector('+JSON.stringify('[data-tool="'+id+'"]')+').click()');
     assert.equal(await evaluate('document.activeElement.id'),'tool-title');
     await evaluate('document.getElementById("tool-example").click()');
@@ -345,6 +345,68 @@ let ws;
     await noOverflow('Toolbox '+width);await screenshot('toolbox-'+width);
   }
   console.log('Toolbox: 11 examples, errors, clear/copy, keyboard, history, responsive layouts and local-only JWT verified.');
+
+
+  await go('/toolbox?q=generator#test-data-generator');
+  await delay(100);
+  const generatorRequests=requests.length;
+  const setGenerator=async (key,value)=>evaluate('document.getElementById('+JSON.stringify('generator-'+key)+').value='+JSON.stringify(String(value))+';document.getElementById('+JSON.stringify('generator-'+key)+').dispatchEvent(new Event("input"))');
+  const generateData=async()=>evaluate('document.getElementById("generator-generate").click()');
+  const allData=async()=>JSON.parse(await evaluate('document.getElementById("generator-export").value'));
+  const types=await evaluate('window.qaGenerator.types.map(t=>t.id)');
+  assert.equal(types.length,11);
+  for(const type of types) {
+    await setGenerator('type',type);await setGenerator('count',3);await generateData();
+    assert.equal(await evaluate('document.getElementById("generator-error").textContent'),'');
+    assert.equal((await allData()).length,3,type);
+    assert.equal(await evaluate('document.querySelectorAll(".generator-result").length'),3);
+  }
+  await setGenerator('type','uuid');await generateData();const firstUUIDs=await allData();
+  await evaluate('document.getElementById("generator-regenerate").click()');
+  assert.notDeepEqual(await allData(),firstUUIDs);
+  await setGenerator('type','string');await setGenerator('length',25);await generateData();
+  assert.ok((await allData()).every(v=>v.length===25));
+  await setGenerator('count',0);await generateData();
+  assert.ok(await evaluate('document.getElementById("generator-error").textContent.includes("Количество")'));
+  assert.equal(await evaluate('document.getElementById("generator-copy-all").disabled'),true);
+  await setGenerator('mode','edge');await generateData();
+  const edgeData=await allData();assert.equal(edgeData.length,12);assert.equal(edgeData[0],'');assert.equal(edgeData[1],' ');
+  assert.equal(await evaluate('document.querySelectorAll(".generator-result b, .generator-result script").length'),0);
+  await evaluate('document.querySelectorAll(".generator-result button")[1].click()');
+  await until('document.querySelector(".generator-form [role=status]").textContent.includes("Скопировано")');
+  assert.equal(await evaluate('navigator.clipboard.readText()'),' ');
+  await evaluate('document.querySelectorAll(".generator-result button")[0].click()');
+  await until('navigator.clipboard.readText().then(v=>v==="")');
+  await evaluate('document.getElementById("generator-copy-all").click()');
+  await until('navigator.clipboard.readText().then(v=>v.startsWith("["))');
+  assert.deepEqual(JSON.parse(await evaluate('navigator.clipboard.readText()')),edgeData);
+  await setGenerator('edge','long');await setGenerator('count',2);await setGenerator('longLength',2048);await generateData();
+  assert.ok((await allData()).every(v=>v.length===2048));
+  await delay(100);// Chrome reports its built-in date picker icon as a data: resource; it never uses the network.
+  assert.deepEqual(requests.slice(generatorRequests).filter(r=>!r.url.startsWith('data:')),[],'Generator makes no network requests');
+  await evaluate('Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:()=>Promise.reject(new Error("denied"))}});document.getElementById("generator-copy-all").click()');
+  await until('document.querySelector(".generator-form [role=status]").textContent.includes("Ctrl+C")');
+  assert.equal(await evaluate('document.activeElement.id'),'generator-export');
+  await evaluate('document.getElementById("generator-clear").click()');
+  assert.equal(await evaluate('document.querySelectorAll(".generator-result").length'),0);
+  assert.equal(await evaluate('document.getElementById("generator-copy-all").disabled'),true);
+  assert.equal(await evaluate('document.activeElement.id'),'generator-count');
+  await evaluate('document.getElementById("generator-generate").focus()');
+  assert.equal(await evaluate("document.activeElement.id"),"generator-generate");
+  await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13,text:'\r',unmodifiedText:'\r'});
+  await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+  await until('document.querySelectorAll(".generator-result").length===2 || document.getElementById("generator-error").textContent.length>0');
+  assert.equal(await evaluate('document.querySelectorAll(".generator-result").length'),2,await evaluate('document.getElementById("generator-error").textContent'));
+  for(const width of [1440,1024,768,390,320]) {
+    await viewport(width);await go('/toolbox#test-data-generator');
+    await setGenerator('mode','edge');await generateData();await noOverflow('Generator '+width);
+    await evaluate('document.getElementById("generator-mode").scrollIntoView({block:"start"})');
+    await screenshot('generator-'+width);
+  }
+  await go('/toolbox#test-data-generator');
+  await send('Page.reload');await ready();
+  assert.equal(await evaluate('document.querySelectorAll(".generator-result").length'),0);
+  console.log('Test Data Generator: 11 types, 12 edge cases, ranges, copies, regenerate, keyboard, no network and responsive layouts verified.');
 
   assert.equal(exceptions.length,0,JSON.stringify(exceptions));
   console.log('Responsive layouts 1440/768/390/320 verified; no browser exceptions.');
