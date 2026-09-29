@@ -215,3 +215,16 @@ body[data-page='checklists'] .topic-nav > button { width: 100%; font-size: 11px;
 .check-text .check-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
 .check-tag { font-size: 10px; line-height: 1.5; padding: 3px 7px; background: #eee9f7; color: #65517e; border-radius: 6px; }
 @media (max-width: 900px) { .scenario-results { max-height: 310px; overflow-y: auto; padding: 4px; } }
+
+/* Symptom-driven diagnostic guides. */
+body[data-page='troubleshooting']::before { height: 690px; }
+body[data-page='troubleshooting'] .reference-intro { padding-bottom: 40px; }
+body[data-page='troubleshooting'] .reference-intro h1 { font-size: clamp(30px,4.5vw,54px); overflow-wrap: anywhere; }
+.diagnostic-scenario h3 { margin: 30px 0 12px; font-size: 19px; line-height: 1.5; }
+.diagnostic-scenario ol { padding-left: 25px; }
+.diagnostic-scenario ol li { padding-left: 5px; margin-bottom: 15px; }
+.diagnostic-scenario ol li::marker { color: #7555ad; font-weight: 700; }
+.diagnostic-sources { border-top: 1px solid #e5dfef; margin-top: 25px; padding-top: 18px; }
+.diagnostic-sources summary { cursor: pointer; color: #6b529d; font-size: 13px; }
+#symptom-title:focus-visible { outline: 3px solid #7561dc; outline-offset: 5px; }
+@media (max-width: 900px) { body[data-page='troubleshooting'] .topic-nav { max-height: 330px; overflow-y: auto; } }

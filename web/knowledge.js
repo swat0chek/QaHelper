@@ -6,7 +6,7 @@ window.qaKnowledge = (() => {
   function blockText(block) {
     if (block.type === 'checklist') return block.items.map(item => item.title + ' ' + item.expected).join(' ');
     if (block.type === 'table') return [...block.headers, ...block.rows.flat()].join(' ');
-    if (block.type === 'list') return block.items.join(' ');
+    if (block.type === 'list' || block.type === 'ordered-list') return block.items.join(' ');
     if (block.type === 'links') return block.items.map(item => item[0]).join(' ');
     if (block.type === 'diagram') return [...block.labels, block.text].join(' ');
     return block.text || '';

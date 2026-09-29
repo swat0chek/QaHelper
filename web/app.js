@@ -126,10 +126,12 @@ function renderDiagram(block) {
 }
 function renderBlock(block) {
   switch (block.type) {
+    case 'heading': return element('h3','',block.text);
     case 'paragraph': return element('p','',block.text);
     case 'note': return element('aside','content-note',block.text);
-    case 'list': {
-      const list = element('ul');
+    case 'list':
+    case 'ordered-list': {
+      const list = element(block.type === 'ordered-list' ? 'ol' : 'ul');
       block.items.forEach(text => list.append(element('li','',text)));
       return list;
     }
