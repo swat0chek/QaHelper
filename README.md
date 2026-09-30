@@ -124,7 +124,7 @@ window.qaModules['example'] = {
 ```shell
 java --source 17 src/Main.java 8081
 # В другом терминале:
-node --test tests/knowledge.test.cjs tests/toolbox.test.cjs tests/data-generator.test.cjs tests/boundary-generator.test.cjs tests/http-finder.test.cjs
+node --test tests/knowledge.test.cjs tests/toolbox.test.cjs tests/data-generator.test.cjs tests/boundary-generator.test.cjs tests/http-finder.test.cjs tests/bug-report.test.cjs
 node tests/browser.cjs
 ```
 
@@ -177,9 +177,9 @@ node tests/browser.cjs
 
 ## QA Toolbox
 
-**/toolbox** — 13 инструментов: JSON Formatter / Validator, JSON Minify, JSON Diff, Text Diff, Base64 Encode/Decode, URL Encode/Decode, UUID Generator, Unix Timestamp ↔ Date, Character Counter, Byte Counter, JWT Decoder, Test Data Generator и Boundary Value Generator.
+**/toolbox** — 14 инструментов: JSON Formatter / Validator, JSON Minify, JSON Diff, Text Diff, Base64 Encode/Decode, URL Encode/Decode, UUID Generator, Unix Timestamp ↔ Date, Character Counter, Byte Counter, JWT Decoder, Test Data Generator, Boundary Value Generator и Bug Report Builder.
 
-Выберите инструмент, введите данные или нажмите «Пример», затем «Выполнить». Для каждого доступны результат, копирование, очистка, описание применения и сообщения об ошибках. Выбор инструмента хранится в hash URL (например, /toolbox#jwt); содержимое полей не записывается в URL или browser storage и очищается при переключении инструмента.
+Выберите инструмент, введите данные или нажмите «Пример», затем «Выполнить». Для каждого доступны результат, копирование, очистка, описание применения и сообщения об ошибках. Выбор инструмента хранится в hash URL (например, /toolbox#jwt); содержимое полей не записывается в URL. В преобразователях оно очищается при переключении; Bug Report Builder сохраняет локальный черновик.
 
 Обработка выполняется в браузере без внешних библиотек и запросов с введёнными данными. **JWT не отправляется на сервер. Decoder только читает header/payload и не проверяет подпись, подлинность или срок действия токена.** Учебный пример намеренно не подписан. JWE и бинарный Base64 не поддерживаются.
 
@@ -245,3 +245,18 @@ web/boundary-generator.js — вычисления и экспорт; web/bounda
 Семантика сверена с [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html#name-status-codes) и [RFC 6585 для 429](https://www.rfc-editor.org/rfc/rfc6585.html#section-4). Примеры и проверки — учебные сценарии: ответ необходимо сопоставлять с контрактом и логами, статус не доказывает первопричину. 401 не равен 403, клиентский timeout без ответа не равен 504, а все удалённые ресурсы не обязаны возвращать 410.
 
 Тесты проверяют полноту карточек, похожие коды, ссылки, поиск по проблемам, пересечение фильтров, сравнения, сохранение URL, клавиатуру и размеры 320/390/768/1024/1440 px.
+
+
+## Bug Report Builder
+
+**/toolbox#bug-report-builder** — конструктор отчёта с Title, Environment, Preconditions, Steps to reproduce, Actual result, Expected result, Severity, Priority и Additional information. Подсказки находятся рядом с полями; для Title приведены плохой и хороший примеры. Ссылка ведёт в существующий раздел /bug-reports.
+
+Шаги добавляются и удаляются динамически; кнопки «Выше»/«Ниже» меняют порядок, «Вернуть удалённый шаг» восстанавливает последнее удаление. Фокус остаётся на редактируемом шаге. Пустые шаги сохраняются в черновике, но не входят в экспорт; непустые нумеруются последовательно.
+
+Экспорт обновляется сразу: Plain text, Markdown или Jira-friendly (wiki markup: h2. и #). Разметка внутри введённого текста экранируется для выбранного формата. Jira-friendly предназначен для редактора с поддержкой wiki markup, а не для автоматической отправки в Jira; в других редакторах используйте Plain text/Markdown. Copy копирует текущий формат; при отказе Clipboard API текст выделяется для ручного копирования.
+
+Проверка по правилам не блокирует работу: предупреждения об отсутствии Actual result, Expected result, Environment, содержательных шагов и слишком абстрактном Title. Title проверяется по длине и небольшому набору общих формулировок; это эвристика, не семантическая оценка. Отсутствие замечаний не гарантирует качество отчёта. Severity и Priority выбираются отдельно и автоматически не назначаются.
+
+Черновик всех полей, порядка шагов и формата синхронно сохраняется после изменений в localStorage под ключом qaHelpers.bugReport.v1. Он восстанавливается после обновления и переключения инструментов. Данные локальны для браузерного профиля и origin (hostname + порт), не отправляются на сервер. Очистка данных сайта удалит черновик. При запрете/переполнении хранилища отображается предупреждение; остаётся копия в памяти вкладки, которая не переживёт обновление. Повреждённая запись не перезаписывается до нового ввода, пользователь получает сообщение.
+
+web/bug-report.js — схема, правила и экспорт; web/bug-report-ui.js — форма, управление шагами, сохранение и восстановление. Конфигурация Toolbox использует renderer: 'bug-report'. Тесты проверяют правила, три формата, порядок шагов, копирование, reload, повреждённое/недоступное хранилище и адаптивность.
