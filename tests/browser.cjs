@@ -70,7 +70,7 @@ let ws;
   for(const meta of context.window.qaData.sections) {
     await go(meta.href);
     assert.ok(await evaluate('document.querySelector("h1").textContent.length > 0'),meta.id);
-    const expected=meta.id==='http-codes'?25:['what-to-test','troubleshooting','toolbox'].includes(meta.id)?1:3;
+    const expected=meta.id==='http-codes'?26:['what-to-test','troubleshooting','toolbox'].includes(meta.id)?1:3;
     const count=await evaluate(meta.id==='http-codes'?'document.querySelectorAll(".code-row").length':'document.querySelectorAll(".article-topic").length');
     assert.ok(count>=expected,meta.id);
     if (!['what-to-test','troubleshooting','toolbox'].includes(meta.id)) assert.equal(await evaluate(`Array.from(document.querySelectorAll('.topic-nav a,.category-nav a')).every(a => document.getElementById(a.hash.slice(1)))`),true,meta.id);
@@ -460,6 +460,51 @@ let ws;
     await noOverflow('Boundary '+width);await evaluate('document.getElementById("boundary-mode").scrollIntoView({block:"start"})');await screenshot('boundary-'+width);
   }
   console.log('Boundary generator: exact decimals, six roles, invalid bounds, strings, clipboard, keyboard, links, no network and responsive layouts verified.');
+
+
+  await go('/http-codes');
+  assert.equal(await evaluate('document.querySelectorAll(".status-card").length'),26);
+  assert.equal(await evaluate('document.querySelectorAll(".status-comparison").length'),6);
+  const findStatus=async value=>evaluate('document.getElementById("status-search").value='+JSON.stringify(value)+';document.getElementById("status-search").dispatchEvent(new Event("input"))');
+  await findStatus('409');assert.equal(await evaluate('document.querySelectorAll(".status-card").length'),1);
+  assert.equal(await evaluate('document.querySelector(".status-card").id'),'status-409');
+  await findStatus('нет авторизации');assert.equal(await evaluate('document.querySelector(".status-card").id'),'status-401');
+  await findStatus('ресурс не найден');assert.equal(await evaluate('document.querySelector(".status-card").id'),'status-404');
+  await findStatus('<script>');assert.equal(await evaluate('document.querySelectorAll(".status-card").length'),0);
+  assert.ok(await evaluate('document.getElementById("finder-status").textContent.includes("Ничего")'));
+  await evaluate('document.getElementById("finder-reset").click()');
+  assert.equal(await evaluate('document.activeElement.id'),'status-search');
+  for(const prefix of ['1xx','2xx','3xx','4xx','5xx']){
+    await evaluate('document.querySelector('+JSON.stringify('[data-status-class="'+prefix+'"]')+').click()');
+    assert.equal(await evaluate('Array.from(document.querySelectorAll(".status-card")).every(c=>c.id.startsWith("status-'+prefix[0]+'"))'),true);
+    assert.equal(await evaluate('document.querySelector('+JSON.stringify('[data-status-class="'+prefix+'"]')+').getAttribute("aria-pressed")'),'true');
+  }
+  await findStatus('409');assert.equal(await evaluate('document.querySelectorAll(".status-card").length'),0);
+  await evaluate('document.getElementById("finder-reset").click()');await findStatus('нет авторизации');
+  await send('Page.reload');await ready();assert.equal(await evaluate('document.getElementById("status-search").value'),'нет авторизации');
+  await go('/http-codes?q=HTTP&status-search=409&status-class=4xx');
+  await evaluate('document.querySelector("#status-409 details").open=true;document.querySelector("#status-409 a[data-finder-target=status-422]").click()');
+  assert.equal(await evaluate('location.hash'),'#status-422');
+  assert.equal(await evaluate('document.querySelector("#status-422 details").open'),true);
+  assert.ok(await evaluate('location.search.includes("q=HTTP") && !location.search.includes("status-search")'));
+  await evaluate('history.back()');await until('document.getElementById("status-search").value==="409"');
+  assert.equal(await evaluate('document.querySelectorAll(".status-card").length'),1);
+  await go('/http-codes#codes-4xx');assert.ok(await evaluate('document.getElementById("codes-4xx")!==null'));
+  await go('/http-codes?status-search=409&status-class=4xx#status-410');
+  assert.equal(await evaluate('document.querySelector("#status-410 details").open'),true);
+  assert.equal(await evaluate('document.getElementById("status-search").value'),'');
+  await evaluate('document.querySelector("#status-410 a[data-finder-target=compare-404-410]").focus()');
+  await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13,text:'\r'});
+  await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+  await until('location.hash==="#compare-404-410"');
+  assert.equal(await evaluate('document.activeElement.parentElement.id'),'compare-404-410');
+  await go('/http-codes#status-401');
+  assert.ok(await evaluate('document.querySelector("#status-401 a.back-link").href.includes("/http#headers")'));
+  for(const width of [1440,1024,768,390,320]){
+    await viewport(width);await go('/http-codes#status-401');await noOverflow('HTTP Finder '+width);await screenshot('http-finder-'+width);
+    await go('/http-codes#compare-500-502-503-504');await noOverflow('HTTP comparisons '+width);
+  }
+  console.log('HTTP Finder: 26 statuses, problem search, class filters, six comparisons, old/new URLs, reload/history and keyboard verified.');
 
   assert.equal(exceptions.length,0,JSON.stringify(exceptions));
   console.log('Responsive layouts 1440/768/390/320 verified; no browser exceptions.');

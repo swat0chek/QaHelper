@@ -22,6 +22,7 @@ public class Main {
             Map.entry("/troubleshooting", "troubleshooting.html"),
             Map.entry("/troubleshooting.js", "troubleshooting.js"),
             Map.entry("/http-codes", "http-codes.html"),
+            Map.entry("/http-finder.js", "http-finder.js"),
             Map.entry("/styles.css", "styles.css"),
             Map.entry("/data.js", "data.js"),
             Map.entry("/knowledge.js", "knowledge.js"),
@@ -32,7 +33,7 @@ public class Main {
 
     private static final Set<String> MODULES = Set.of(
             "devtools", "api-testing", "sql", "bug-reports", "test-cases", "test-design",
-            "http", "browser-storage", "git", "command-line", "mobile-qa", "logs",
+            "http", "http-codes", "browser-storage", "git", "command-line", "mobile-qa", "logs",
             "security", "performance", "automation", "ci-cd", "architecture",
             "testing-types", "qa-metrics", "glossary", "what-to-test", "troubleshooting", "toolbox"
     );

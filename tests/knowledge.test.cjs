@@ -9,16 +9,14 @@ for (const file of ['web/data.js','web/knowledge.js', ...fs.readdirSync('web/mod
 const {qaData,qaKnowledge,qaModules} = context.window;
 const catalog = qaData.sections;
 const base = process.env.QA_BASE_URL || 'http://127.0.0.1:8081';
-const contents = catalog.map(meta => meta.id === 'http-codes' ? {
-  topics: qaData.httpGroups.map(g => ({id:'codes-'+g.prefix,title:g.prefix+' '+g.title,blocks:[{type:'table',headers:['Код','Название','Описание'],rows:g.codes}]}))
-} : qaModules[meta.id]);
+const contents = catalog.map(meta => qaModules[meta.id]);
 const index = qaKnowledge.index(catalog,contents);
 
 test('24 unique modules; valid structured content and links', () => {
   assert.equal(catalog.length,24);
   assert.equal(new Set(catalog.map(m => m.id)).size,24);
   assert.equal(new Set(catalog.map(m => m.href)).size,24);
-  assert.equal(qaData.httpGroups.flatMap(g => g.codes).length,25);
+  assert.equal(qaData.httpGroups.flatMap(g => g.codes).length,26);
   const types = new Set(['paragraph','list','table','code','note','diagram','links','checklist','heading','ordered-list']);
   for (const [i,meta] of catalog.entries()) {
     assert.equal(meta.href,'/'+meta.id);

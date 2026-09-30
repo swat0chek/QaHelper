@@ -11,20 +11,7 @@ window.qaKnowledge = (() => {
     if (block.type === 'diagram') return [...block.labels, block.text].join(' ');
     return block.text || '';
   }
-  function httpContent() {
-    return {
-      topics: window.qaData.httpGroups.map(group => ({
-        id: 'codes-' + group.prefix,
-        title: group.prefix + ' · ' + group.title,
-        blocks: [
-          {type: 'paragraph', text: group.description},
-          {type: 'table', headers: ['Код', 'Название', 'Описание'], rows: group.codes}
-        ]
-      })), sources: []
-    };
-  }
   function load(meta) {
-    if (meta.id === 'http-codes') return Promise.resolve(httpContent());
     if (window.qaModules[meta.id]) return Promise.resolve(window.qaModules[meta.id]);
     if (requests.has(meta.id)) return requests.get(meta.id);
     const promise = new Promise((resolve, reject) => {
