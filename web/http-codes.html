@@ -4,20 +4,33 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0b1225">
-  <title>HTTP коды — QA Helpers</title>
+  <title>HTTP Status Code Finder — qaHelp</title>
   <link rel="stylesheet" href="/styles.css">
   <script src="/data.js" defer></script>
   <script src="/knowledge.js" defer></script>
   <script src="/app.js" defer></script>
+  <script src="/http-finder.js" defer></script>
 </head>
 <body data-page="http-codes">
   <header class="site-header container"><a class="brand" href="/" aria-label="QA Helpers — главная"><span class="brand-icon" aria-hidden="true">‹/›</span><span class="brand-name"><span>qa</span>Help</span></a><nav class="main-nav" aria-label="Основная навигация"><a href="/">Главная</a><a href="/#library" aria-current="page">База знаний</a><a href="/#about">О проекте</a></nav></header>
   <main class="container reference">
     <a class="back-link return-link" href="/">← Все разделы</a>
-    <section class="reference-intro"><p class="eyebrow">СПРАВОЧНИК / WEB & API</p><h1>HTTP <span class="gradient-text">коды</span></h1><p class="hero-description">Что отвечает сервер — и что это значит.<br>Основные статусы HTTP для ежедневной работы с API.</p></section>
+    <section class="reference-intro"><p class="eyebrow">СПРАВОЧНИК / WEB & API</p><h1>HTTP <span class="gradient-text">Status Code Finder</span></h1><p class="hero-description">Найдите статус по коду или проблеме. Разберитесь в ответе и выберите следующие проверки.</p></section>
     <aside class="tip"><span class="tip-icon">i</span><p>Первая цифра определяет класс ответа: <strong>1xx</strong> — информация, <strong>2xx</strong> — успех, <strong>3xx</strong> — перенаправление, <strong>4xx</strong> — ошибка клиента, <strong>5xx</strong> — ошибка сервера.</p></aside>
+    <div id="http-finder">
+    <form id="finder-form" class="article-topic tool-form" role="search" aria-label="Поиск HTTP-статуса">
+      <label for="status-search">Код, название или проблема</label>
+      <input id="status-search" type="search" maxlength="300" placeholder="409, нет авторизации, ресурс не найден" autocomplete="off" aria-describedby="finder-help">
+      <p id="finder-help" class="tool-hint">Ищет по словам и распространённым описаниям проблем. Статус помогает выбрать проверки, но не доказывает причину ошибки.</p>
+      <div class="tool-actions"><button type="submit" class="clear-results">Найти</button><button type="button" id="finder-reset" class="clear-results">Сбросить поиск и фильтры</button></div>
+    </form>
+    <p id="finder-status" role="status">Загрузка статусов…</p>
     <nav class="category-nav" aria-label="Классы HTTP-кодов" id="category-nav"></nav>
+    <section class="article-topic" aria-labelledby="comparison-title"><h2 id="comparison-title">Часто путают</h2><nav id="comparison-nav" class="finder-links" aria-label="Сравнения статусов"></nav></section>
     <div id="code-groups"></div>
+    <h2>Подробные сравнения</h2><div id="status-comparisons"></div>
+    <p class="finder-links" id="finder-sources"></p>
+    </div>
     <noscript><p>Включите JavaScript, чтобы увидеть справочник HTTP-кодов.</p></noscript>
     <p class="reference-note">Здесь собраны часто используемые статусы, а не полный реестр HTTP-кодов.</p>
   </main>

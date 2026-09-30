@@ -59,33 +59,6 @@ function renderCatalog() {
   }
 }
 
-if (document.body.dataset.page === 'http-codes') {
-  const navigation = document.getElementById('category-nav');
-  const content = document.getElementById('code-groups');
-  for (const group of httpGroups) {
-    const link = element('a', `category-link tone-${group.prefix}`, `${group.prefix} · ${group.title}`);
-    link.href = `#codes-${group.prefix}`;
-    navigation.append(link);
-    const section = element('section', `code-group tone-${group.prefix}`);
-    section.id = `codes-${group.prefix}`;
-    const heading = element('h2', 'group-title');
-    heading.id = `title-${group.prefix}`;
-    heading.append(element('span', 'group-prefix', group.prefix), document.createTextNode(group.title));
-    section.setAttribute('aria-labelledby', heading.id);
-    section.append(heading, element('p', 'group-description', group.description));
-    const list = element('dl', 'code-list');
-    for (const [code, name, description] of group.codes) {
-      const row = element('div', 'code-row');
-      const term = element('dt');
-      term.append(element('span', 'status-code', code), element('span', 'status-name', name));
-      row.append(term, element('dd', '', description));
-      list.append(row);
-    }
-    section.append(list);
-    content.append(section);
-  }
-}
-
 const query = () => new URLSearchParams(location.search).get('q') || '';
 function withQuery(href) {
   const url = new URL(href, location.origin);
@@ -292,4 +265,3 @@ if (document.body.dataset.page === 'module') renderModule().catch(error => {
   document.getElementById('module-status').textContent = error.message;
   document.body.dataset.ready = 'error';
 });
-if (document.body.dataset.page === 'http-codes') document.body.dataset.ready = 'true';

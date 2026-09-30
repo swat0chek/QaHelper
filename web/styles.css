@@ -256,3 +256,19 @@ body[data-page="toolbox"] .reference-intro h1 { font-size: clamp(30px,4.5vw,54px
 .generator-result button { min-height: 44px; }
 .generator-form [hidden] { display: none !important; }
 @media (max-width: 650px) { .tool-pair { grid-template-columns: minmax(0,1fr); } }
+
+/* HTTP finder keeps the original group anchors and palette. */
+.status-card.code-row { display: block; background: #fff; border: 1px solid #e5e6f1; border-radius: 14px; margin-bottom: 14px; overflow-wrap: anywhere; }
+.status-card h3 { margin: 0 0 10px; font-size: 19px; }
+.status-card h4 { margin: 20px 0 8px; }
+.status-card p, .status-card li { line-height: 1.8; font-size: 14px; }
+.status-card summary { cursor: pointer; padding: 12px 0; color: #65449b; }
+.status-card > a { display: inline-block; margin-top: 12px; font-size: 13px; }
+.finder-links { display: flex; flex-wrap: wrap; gap: 12px 20px; }
+.finder-links a { overflow-wrap: anywhere; }
+#category-nav button { font: inherit; cursor: pointer; }
+#category-nav [aria-pressed="true"] { background: #e8dffa; border-color: #8060bd; color: #452777; }
+#http-finder :is(button,summary,a,h2,h3):focus-visible { outline: 3px solid #7561dc; outline-offset: 4px; }
+.status-card, .status-comparison { scroll-margin-top: 20px; }
+.status-comparison { margin-bottom: 20px; }
+body[data-page="http-codes"] .reference-intro h1 { font-size: clamp(30px,4.5vw,54px); }

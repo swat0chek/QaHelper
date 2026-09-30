@@ -1,4 +1,4 @@
-window.qaModules["http"] = {
+window.qaModules.http = {
   "topics": [
     {
       "id": "methods",
@@ -108,6 +108,15 @@ window.qaModules["http"] = {
             "Проверены headers, тело и статусы.",
             "Кеш не скрывает изменения данных.",
             "CORS проверен в браузере; HTTPS — с проверкой сертификата."
+          ]
+        },
+        {
+          "type": "links",
+          "items": [
+            [
+              "HTTP Status Code Finder: найти ответ по коду или проблеме",
+              "/http-codes"
+            ]
           ]
         }
       ]
