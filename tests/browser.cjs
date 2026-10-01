@@ -311,8 +311,8 @@ let ws;
   assert.equal(requests.length,beforeRequests,'JWT operations cause no network requests');
   assert.equal(await evaluate('Object.keys(localStorage).some(k=>/toolbox|jwt/i.test(k))'),false);
   const toolIds=await evaluate('Array.from(document.querySelectorAll("[data-tool]")).map(a=>a.dataset.tool)');
-  assert.equal(toolIds.length,14);
-  for(const id of toolIds.filter(id=>!["test-data-generator","boundary-value-generator","bug-report-builder"].includes(id))) {
+  assert.equal(toolIds.length,15);
+  for(const id of toolIds.filter(id=>!["test-data-generator","boundary-value-generator","bug-report-builder","test-case-builder"].includes(id))) {
     await evaluate('document.querySelector('+JSON.stringify('[data-tool="'+id+'"]')+').click()');
     assert.equal(await evaluate('document.activeElement.id'),'tool-title');
     await evaluate('document.getElementById("tool-example").click()');
@@ -566,6 +566,40 @@ let ws;
   }
   console.log('Bug builder: fields, dynamic steps, three exports, clipboard, advisory rules, draft reload, storage failure and responsive layouts verified.');
 
+  await go('/toolbox#test-case-builder');
+  const fillCase=async(id,value)=>evaluate(`{const e=document.getElementById('case-'+${JSON.stringify(id)});e.value=${JSON.stringify(value)};e.dispatchEvent(new Event('input',{bubbles:true}));}`);
+  const caseMode=async value=>evaluate(`{const e=document.getElementById('case-mode');e.value=${JSON.stringify(value)};e.dispatchEvent(new Event('change'));}`);
+  await fillCase('title','Login case');await fillCase('item-0','Open login');
+  await evaluate('document.getElementById("case-duplicate-0").click()');
+  await fillCase('item-1','Submit');await evaluate('document.getElementById("case-up-1").click()');
+  assert.equal(await evaluate('document.activeElement.id'),'case-item-0');
+  assert.equal(await evaluate('document.getElementById("case-item-0").value'),'Submit');
+  await evaluate('document.getElementById("case-delete-1").click()');
+  await caseMode('checklist');await fillCase('title','Login checklist');await fillCase('item-0','Valid login');
+  await evaluate('document.getElementById("case-duplicate-0").click();document.getElementById("case-delete-0").click();document.getElementById("case-delete-0").click()');
+  assert.equal(await evaluate('document.activeElement.id'),'case-add-item');
+  await evaluate('document.getElementById("case-add-item").click()');await fillCase('item-0','Check login');
+  await evaluate('document.getElementById("case-format").value="csv";document.getElementById("case-format").dispatchEvent(new Event("change"))');
+  await send('Page.reload');await ready();await until('document.getElementById("case-title")?.value==="Login checklist"');
+  assert.equal(await evaluate('document.getElementById("case-format").value'),'csv');
+  await caseMode('testcase');assert.equal(await evaluate('document.getElementById("case-title").value'),'Login case');
+  assert.equal(await evaluate('document.getElementById("case-item-0").value'),'Submit');
+  await evaluate('Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:async t=>{window.caseCopied=t}}});document.getElementById("case-copy").click()');
+  await until('window.caseCopied===document.getElementById("case-output").value');
+  await evaluate('Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:async()=>{throw Error("denied")}}});document.getElementById("case-copy").click()');
+  await until('document.activeElement.id==="case-output"');
+  for(const width of [1440,768,390,320]){await viewport(width);await noOverflow('Test case builder '+width);}
+  await screenshot('test-case-mobile');
+  await evaluate('Object.defineProperty(window,"localStorage",{configurable:true,get:()=>{throw Error("denied")}})');
+  await fillCase('title','Memory draft');
+  await evaluate('document.querySelector("[data-tool=json-format]").click();document.querySelector("[data-tool=test-case-builder]").click()');
+  assert.equal(await evaluate('document.getElementById("case-title").value'),'Memory draft');
+  assert.ok(await evaluate('document.getElementById("case-draft-status").textContent.includes("памяти")'));
+  await send('Page.reload');await ready();
+  await evaluate('localStorage.setItem("qaHelpers.testCase.v1","{broken");window.qaTestCaseSession=null;document.querySelector("[data-tool=json-format]").click();document.querySelector("[data-tool=test-case-builder]").click()');
+  assert.equal(await evaluate('localStorage.getItem("qaHelpers.testCase.v1")'),'{broken');
+  assert.ok(await evaluate('document.getElementById("case-draft-status").textContent.includes("Не удалось прочитать")'));
+  console.log('Test case/checklist: editing, reorder, duplicate, delete, mode switching, reload, copy, storage failures and responsive layouts verified.');
   assert.equal(exceptions.length,0,JSON.stringify(exceptions));
   console.log('Responsive layouts 1440/768/390/320 verified; no browser exceptions.');
   await send('Browser.close');

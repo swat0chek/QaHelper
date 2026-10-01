@@ -124,7 +124,7 @@ window.qaModules['example'] = {
 ```shell
 java --source 17 src/Main.java 8081
 # В другом терминале:
-node --test tests/knowledge.test.cjs tests/toolbox.test.cjs tests/data-generator.test.cjs tests/boundary-generator.test.cjs tests/http-finder.test.cjs tests/bug-report.test.cjs
+node --test tests/knowledge.test.cjs tests/toolbox.test.cjs tests/data-generator.test.cjs tests/boundary-generator.test.cjs tests/http-finder.test.cjs tests/bug-report.test.cjs tests/test-case.test.cjs
 node tests/browser.cjs
 ```
 
@@ -177,9 +177,9 @@ node tests/browser.cjs
 
 ## QA Toolbox
 
-**/toolbox** — 14 инструментов: JSON Formatter / Validator, JSON Minify, JSON Diff, Text Diff, Base64 Encode/Decode, URL Encode/Decode, UUID Generator, Unix Timestamp ↔ Date, Character Counter, Byte Counter, JWT Decoder, Test Data Generator, Boundary Value Generator и Bug Report Builder.
+**/toolbox** — 15 инструментов: JSON Formatter / Validator, JSON Minify, JSON Diff, Text Diff, Base64 Encode/Decode, URL Encode/Decode, UUID Generator, Unix Timestamp ↔ Date, Character Counter, Byte Counter, JWT Decoder, Test Data Generator, Boundary Value Generator, Bug Report Builder и Test Case / Checklist Builder.
 
-Выберите инструмент, введите данные или нажмите «Пример», затем «Выполнить». Для каждого доступны результат, копирование, очистка, описание применения и сообщения об ошибках. Выбор инструмента хранится в hash URL (например, /toolbox#jwt); содержимое полей не записывается в URL. В преобразователях оно очищается при переключении; Bug Report Builder сохраняет локальный черновик.
+Выберите инструмент, введите данные или нажмите «Пример», затем «Выполнить». Для каждого доступны результат, копирование, очистка, описание применения и сообщения об ошибках. Выбор инструмента хранится в hash URL (например, /toolbox#jwt); содержимое полей не записывается в URL. В преобразователях оно очищается при переключении; Bug Report Builder и Test Case / Checklist Builder сохраняют локальные черновики.
 
 Обработка выполняется в браузере без внешних библиотек и запросов с введёнными данными. **JWT не отправляется на сервер. Decoder только читает header/payload и не проверяет подпись, подлинность или срок действия токена.** Учебный пример намеренно не подписан. JWE и бинарный Base64 не поддерживаются.
 
@@ -260,3 +260,11 @@ web/boundary-generator.js — вычисления и экспорт; web/bounda
 Черновик всех полей, порядка шагов и формата синхронно сохраняется после изменений в localStorage под ключом qaHelpers.bugReport.v1. Он восстанавливается после обновления и переключения инструментов. Данные локальны для браузерного профиля и origin (hostname + порт), не отправляются на сервер. Очистка данных сайта удалит черновик. При запрете/переполнении хранилища отображается предупреждение; остаётся копия в памяти вкладки, которая не переживёт обновление. Повреждённая запись не перезаписывается до нового ввода, пользователь получает сообщение.
 
 web/bug-report.js — схема, правила и экспорт; web/bug-report-ui.js — форма, управление шагами, сохранение и восстановление. Конфигурация Toolbox использует renderer: 'bug-report'. Тесты проверяют правила, три формата, порядок шагов, копирование, reload, повреждённое/недоступное хранилище и адаптивность.
+
+## Test Case / Checklist Builder
+
+**/toolbox#test-case-builder** — Test Case (ID, Title, Preconditions, Test Data, Steps, Expected Result, Priority) и Checklist (Title, список проверок). Ссылка «Test Case vs Checklist» ведёт на /test-cases#formats.
+
+Шаги и проверки можно добавлять, перемещать, дублировать и удалять. Каждый режим сохраняет свой документ. Пустые пункты остаются в черновике, но пропускаются в экспорте. Copy и скачивание поддерживают Markdown, Plain text и CSV. CSV: одна строка на шаг/проверку, поля документа повторяются; кавычки и переносы экранируются, потенциальные формулы получают защитный апостроф. Скачиваемый CSV содержит UTF-8 BOM.
+
+Оба документа, режим и формат сохраняются локально в qaHelpers.testCase.v1, без отправки на сервер. Черновик привязан к браузеру и origin. При недоступном хранилище данные остаются в памяти вкладки до обновления; интерфейс сообщает об этом. Повреждённая запись не заменяется до нового ввода. При отказе Copy текст выделяется для ручного копирования. Логика: web/test-case.js; интерфейс: web/test-case-ui.js.

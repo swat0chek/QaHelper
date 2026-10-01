@@ -175,6 +175,7 @@ window.qaModules.toolbox = (() => {
   "example": [],
   "modes": []
 }
+, {"id":"test-case-builder","title":"Test Case / Checklist Builder","renderer":"test-case","purpose":"Создайте Test Case или Checklist: добавляйте, дублируйте, удаляйте и меняйте порядок шагов и проверок.","help":"Copy и скачивание в Markdown, Plain text и CSV. Оба документа автоматически сохраняются локально в браузере.","related":[["Test Case vs Checklist — материалы qaHelp","/test-cases#formats"]],"example":[],"modes":[]}
 ];
   return {tools, topics: tools.map(tool => ({id:tool.id, title:tool.title, blocks:[
     {type:'paragraph', text:tool.purpose}, {type:'note', text:tool.help},
