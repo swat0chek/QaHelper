@@ -15,6 +15,8 @@ public class Main {
             Map.entry("/toolbox", "toolbox.html"),
             Map.entry("/bug-report.js", "bug-report.js"),
             Map.entry("/bug-report-ui.js", "bug-report-ui.js"),
+            Map.entry("/test-case.js", "test-case.js"),
+            Map.entry("/test-case-ui.js", "test-case-ui.js"),
             Map.entry("/toolbox.js", "toolbox.js"),
             Map.entry("/toolbox-core.js", "toolbox-core.js"),
             Map.entry("/boundary-generator.js", "boundary-generator.js"),
