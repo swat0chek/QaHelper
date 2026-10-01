@@ -159,7 +159,22 @@ window.qaModules.toolbox = (() => {
     ],
     "example": [],
     "modes": []
-  }
+  },
+{
+  "id": "bug-report-builder",
+  "title": "Bug Report Builder",
+  "renderer": "bug-report",
+  "purpose": "Соберите воспроизводимый баг-репорт: Title, Environment, Preconditions, Steps, Actual/Expected result, Severity, Priority и дополнительная информация.",
+  "help": "Шаги можно добавлять, удалять и перемещать. Экспорт: Plain text, Markdown и Jira-friendly. Проверки по правилам не блокируют Copy. Черновик автоматически сохраняется только в этом браузере.",
+  "related": [
+    [
+      "Как составить хороший баг-репорт",
+      "/bug-reports"
+    ]
+  ],
+  "example": [],
+  "modes": []
+}
 ];
   return {tools, topics: tools.map(tool => ({id:tool.id, title:tool.title, blocks:[
     {type:'paragraph', text:tool.purpose}, {type:'note', text:tool.help},

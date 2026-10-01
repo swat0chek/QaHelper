@@ -272,3 +272,9 @@ body[data-page="toolbox"] .reference-intro h1 { font-size: clamp(30px,4.5vw,54px
 .status-card, .status-comparison { scroll-margin-top: 20px; }
 .status-comparison { margin-bottom: 20px; }
 body[data-page="http-codes"] .reference-intro h1 { font-size: clamp(30px,4.5vw,54px); }
+
+.bug-steps { min-width: 0; margin: 0; padding: 16px; border: 1px solid #ded5ee; border-radius: 12px; }
+.bug-steps legend { font-weight: 650; padding: 0 6px; }
+.bug-steps > .tool-actions { margin-top: 16px; }
+.bug-step .tool-actions { margin-top: 10px; }
+.bug-form .content-note { overflow-wrap: anywhere; }

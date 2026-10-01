@@ -311,8 +311,8 @@ let ws;
   assert.equal(requests.length,beforeRequests,'JWT operations cause no network requests');
   assert.equal(await evaluate('Object.keys(localStorage).some(k=>/toolbox|jwt/i.test(k))'),false);
   const toolIds=await evaluate('Array.from(document.querySelectorAll("[data-tool]")).map(a=>a.dataset.tool)');
-  assert.equal(toolIds.length,13);
-  for(const id of toolIds.filter(id=>!["test-data-generator","boundary-value-generator"].includes(id))) {
+  assert.equal(toolIds.length,14);
+  for(const id of toolIds.filter(id=>!["test-data-generator","boundary-value-generator","bug-report-builder"].includes(id))) {
     await evaluate('document.querySelector('+JSON.stringify('[data-tool="'+id+'"]')+').click()');
     assert.equal(await evaluate('document.activeElement.id'),'tool-title');
     await evaluate('document.getElementById("tool-example").click()');
@@ -505,6 +505,66 @@ let ws;
     await go('/http-codes#compare-500-502-503-504');await noOverflow('HTTP comparisons '+width);
   }
   console.log('HTTP Finder: 26 statuses, problem search, class filters, six comparisons, old/new URLs, reload/history and keyboard verified.');
+
+
+  await go('/toolbox#bug-report-builder');
+  assert.equal(await evaluate('document.querySelectorAll(".bug-form .content-note li").length'),5);
+  const fillBug=async(id,value)=>evaluate('document.getElementById('+JSON.stringify('bug-'+id)+').value='+JSON.stringify(value)+';document.getElementById('+JSON.stringify('bug-'+id)+').dispatchEvent(new Event("input"))');
+  const bugRequests=requests.length;
+  await fillBug('title','Корзина: итоговая сумма не обновляется после удаления товара');
+  await fillBug('environment','stage / build 52 / Chrome');await fillBug('preconditions','Два товара');
+  await fillBug('actual','Сумма прежняя');await fillBug('expected','Сумма уменьшилась');
+  await fillBug('severity','Major');await fillBug('priority','P1');await fillBug('additional','request ID: qa-123');
+  await fillBug('step-0','Открыть корзину');await evaluate('document.getElementById("bug-add-step").click()');
+  assert.equal(await evaluate('document.activeElement.id'),'bug-step-1');await fillBug('step-1','Удалить товар');
+  await evaluate('document.querySelectorAll(".bug-step")[1].querySelector("[data-step-action=up]").focus()');
+  await send('Input.dispatchKeyEvent',{type:'keyDown',key:' ',code:'Space',windowsVirtualKeyCode:32});
+  await send('Input.dispatchKeyEvent',{type:'keyUp',key:' ',code:'Space',windowsVirtualKeyCode:32});
+  await until('document.getElementById("bug-step-0").value==="Удалить товар"');
+  assert.equal(await evaluate('document.getElementById("bug-step-0").value'),'Удалить товар');
+  assert.equal(await evaluate('document.activeElement.id'),'bug-step-0');
+  await evaluate('document.querySelectorAll(".bug-step")[0].querySelector("[data-step-action=down]").click()');
+  await evaluate('document.querySelectorAll(".bug-step")[1].querySelector("[data-step-action=remove]").click()');
+  assert.equal(await evaluate('document.querySelectorAll(".bug-step").length'),1);
+  await evaluate('document.getElementById("bug-undo-step").click()');
+  assert.equal(await evaluate('document.getElementById("bug-step-1").value'),'Удалить товар');
+  assert.ok(await evaluate('document.querySelector(".bug-form .content-note").textContent.includes("замечаний нет")'));
+  for(const format of ['plain','markdown','jira']){
+    await fillBug('format',format);const exportText=await evaluate('document.getElementById("bug-output").value');
+    assert.ok(exportText.includes('Expected result') && exportText.includes('Удалить товар'));
+    await evaluate('document.getElementById("bug-copy").click()');
+    await until('document.querySelector(".bug-form > [role=status]:last-child").textContent.includes("скопирован")');
+    assert.equal((await evaluate('navigator.clipboard.readText()')).replace(/\r\n/g,'\n'),exportText);
+  }
+  // The host antivirus injects Kaspersky form-inspection code into HTTP pages.
+  // Exclude only that observed third-party traffic; do not alter antivirus settings.
+  assert.deepEqual(requests.slice(bugRequests).filter(r=>!r.url.startsWith('data:') && !new URL(r.url).hostname.endsWith('.kaspersky-labs.com')),[]);
+  await send('Page.reload');await ready();
+  await until('document.getElementById("bug-title")?.value.includes("Корзина")');
+  assert.equal(await evaluate('document.getElementById("bug-step-1").value'),'Удалить товар');
+  assert.equal(await evaluate('document.getElementById("bug-format").value'),'jira');
+  assert.equal(await evaluate('document.getElementById("bug-environment").value'),'stage / build 52 / Chrome');
+  await evaluate('document.querySelector("[data-tool=json-format]").click();document.querySelector("[data-tool=bug-report-builder]").click()');
+  assert.equal(await evaluate('document.getElementById("bug-priority").value'),'P1');
+  await fillBug('expected','');assert.ok(await evaluate('document.querySelector(".bug-form .content-note").textContent.includes("Не заполнен Expected")'));
+  assert.equal(await evaluate('document.getElementById("bug-copy").disabled'),false);
+  await evaluate('Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:()=>Promise.reject(new Error("denied"))}});document.getElementById("bug-copy").click()');
+  await until('document.querySelector(".bug-form > [role=status]:last-child").textContent.includes("Ctrl+C")');
+  assert.equal(await evaluate('document.activeElement.id'),'bug-output');
+  await evaluate('Object.defineProperty(window,"localStorage",{configurable:true,get:()=>{throw new Error("denied")}});true');
+  await fillBug('additional','memory fallback');assert.ok(await evaluate('document.getElementById("bug-draft-status").textContent.includes("Не удалось сохранить")'));
+  await evaluate('document.querySelector("[data-tool=json-format]").click();document.querySelector("[data-tool=bug-report-builder]").click()');
+  assert.equal(await evaluate('document.getElementById("bug-additional").value'),'memory fallback');
+  assert.ok(await evaluate('document.getElementById("bug-draft-status").textContent.includes("Не удалось сохранить")'));
+  await send('Page.reload');await ready();
+  await evaluate('localStorage.setItem("qaHelpers.bugReport.v1","{broken");window.qaBugDraftSession=null;document.querySelector("[data-tool=json-format]").click();document.querySelector("[data-tool=bug-report-builder]").click()');
+  assert.ok(await evaluate('document.getElementById("bug-draft-status").textContent.includes("Не удалось прочитать")'));
+  assert.equal(await evaluate('localStorage.getItem("qaHelpers.bugReport.v1")'),'{broken');
+  await fillBug('title','Корзина: итоговая сумма не обновляется');await fillBug('environment','stage / Chrome');await fillBug('step-0','Открыть корзину');
+  for(const width of [1440,1024,768,390,320]){
+    await viewport(width);await noOverflow('Bug builder '+width);await evaluate('document.getElementById("bug-title").scrollIntoView({block:"start",behavior:"instant"})');await screenshot('bug-report-'+width);
+  }
+  console.log('Bug builder: fields, dynamic steps, three exports, clipboard, advisory rules, draft reload, storage failure and responsive layouts verified.');
 
   assert.equal(exceptions.length,0,JSON.stringify(exceptions));
   console.log('Responsive layouts 1440/768/390/320 verified; no browser exceptions.');

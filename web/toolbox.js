@@ -2,7 +2,7 @@ async function initializeToolbox() {
   const content=await window.qaKnowledge.load(sections.find(x=>x.id==='toolbox'));
   const nav=document.getElementById('topic-nav'),article=document.getElementById('module-content');
   document.getElementById('module-title').textContent='QA Toolbox';
-  document.getElementById('module-description').textContent='Ежедневные QA-задачи — в одном месте. Все вычисления локальны: ввод не отправляется на сервер и не сохраняется.';
+  document.getElementById('module-description').textContent='Ежедневные QA-задачи — в одном месте. Все вычисления локальны: ввод не отправляется на сервер. Bug Report Builder сохраняет локальный черновик.';
   nav.append(element('h2','','Выберите инструмент'));
   for(const tool of content.tools) {
     const link=element('a','',tool.title);link.href='#'+tool.id;link.dataset.tool=tool.id;nav.append(link);
@@ -20,7 +20,9 @@ async function initializeToolbox() {
     const title=element('h2','',tool.title);title.id='tool-title';title.tabIndex=-1;
     section.append(title,element('p','',tool.purpose),element('aside','content-note',tool.help));
     if(tool.related) section.append(renderBlock({type:'links',items:tool.related}));
-    if(tool.renderer==='boundary') {
+    if(tool.renderer==='bug-report') {
+      window.qaBugReportUI(section);
+    } else if(tool.renderer==='boundary') {
       window.qaBoundaryUI(section);
     } else if(tool.renderer==='generator') {
       window.qaGeneratorUI(section);
