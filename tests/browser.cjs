@@ -77,6 +77,38 @@ let ws;
     await noOverflow(meta.id);
   }
   console.log('All 24 pages rendered, headings and anchors verified.');
+  await go('/test-design');
+  assert.equal(await evaluate('document.getElementById("advisor-next").disabled'), true);
+  const answerAdvisor = async value => {
+    await evaluate(`document.querySelector('#technique-advisor input[value="${value}"]').click();document.getElementById('advisor-next').click()`);
+  };
+  await answerAdvisor('yes');
+  await evaluate('document.getElementById("advisor-back").click()');
+  assert.equal(await evaluate('document.querySelector("#technique-advisor input:checked").value'), 'yes');
+  await evaluate('document.getElementById("advisor-next").click()');
+  for (let i=0;i<4;i++) await answerAdvisor('yes');
+  assert.equal(await evaluate('document.querySelectorAll(".advisor-result").length'), 6);
+  assert.equal(await evaluate('document.activeElement.id'), 'advisor-title');
+  assert.ok(await evaluate('Array.from(document.querySelectorAll(".advisor-result a")).every(a => document.getElementById(a.hash.slice(1)))'));
+  for (const width of [1440,768,390,320]) {
+    await viewport(width);await noOverflow('Test design advisor '+width);
+    await evaluate('document.getElementById("technique-advisor").scrollIntoView({behavior:"instant"})');
+    await screenshot('test-design-advisor-'+width);
+  }
+  await evaluate('document.getElementById("advisor-edit").click()');
+  for (let i=0;i<5;i++) await answerAdvisor('no');
+  assert.equal(await evaluate('document.querySelectorAll(".advisor-result").length'), 0);
+  assert.ok(await evaluate('document.getElementById("technique-advisor").textContent.includes("недостаточно")'));
+  await evaluate('document.getElementById("advisor-reset").click()');
+  assert.equal(await evaluate('document.querySelector("#technique-advisor input:checked")'), null);
+  await evaluate('document.querySelector("#technique-advisor input").focus()');
+  await send('Input.dispatchKeyEvent',{type:'keyDown',key:' ',code:'Space',windowsVirtualKeyCode:32});
+  await send('Input.dispatchKeyEvent',{type:'keyUp',key:' ',code:'Space',windowsVirtualKeyCode:32});
+  assert.equal(await evaluate('document.getElementById("advisor-next").disabled'), false);
+  for (let i=0;i<5;i++) await answerAdvisor('unknown');
+  assert.ok(await evaluate('document.querySelector(".advisor-notice").textContent.includes("Пока не знаю")'));
+  await viewport(1440);
+  console.log('Test design advisor: combined recommendations, back/edit/reset, unknown answers, keyboard and responsive layouts verified.');
   await go('/');
   assert.equal(await evaluate('document.querySelectorAll("#section-grid a.section-card").length'),24);
   assert.equal(await evaluate('document.querySelectorAll(".card-pending").length'),0);
@@ -590,7 +622,7 @@ let ws;
   await until('document.activeElement.id==="case-output"');
   for(const width of [1440,768,390,320]){await viewport(width);await noOverflow('Test case builder '+width);}
   await screenshot('test-case-mobile');
-  await evaluate('Object.defineProperty(window,"localStorage",{configurable:true,get:()=>{throw Error("denied")}})');
+  await evaluate('void Object.defineProperty(window,"localStorage",{configurable:true,get:()=>{throw Error("denied")}})');
   await fillCase('title','Memory draft');
   await evaluate('document.querySelector("[data-tool=json-format]").click();document.querySelector("[data-tool=test-case-builder]").click()');
   assert.equal(await evaluate('document.getElementById("case-title").value'),'Memory draft');

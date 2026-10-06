@@ -124,7 +124,7 @@ window.qaModules['example'] = {
 ```shell
 java --source 17 src/Main.java 8081
 # В другом терминале:
-node --test tests/knowledge.test.cjs tests/toolbox.test.cjs tests/data-generator.test.cjs tests/boundary-generator.test.cjs tests/http-finder.test.cjs tests/bug-report.test.cjs tests/test-case.test.cjs
+node --test tests/knowledge.test.cjs tests/toolbox.test.cjs tests/data-generator.test.cjs tests/boundary-generator.test.cjs tests/http-finder.test.cjs tests/bug-report.test.cjs tests/test-case.test.cjs tests/test-design-advisor.test.cjs
 node tests/browser.cjs
 ```
 
@@ -260,6 +260,14 @@ web/boundary-generator.js — вычисления и экспорт; web/bounda
 Черновик всех полей, порядка шагов и формата синхронно сохраняется после изменений в localStorage под ключом qaHelpers.bugReport.v1. Он восстанавливается после обновления и переключения инструментов. Данные локальны для браузерного профиля и origin (hostname + порт), не отправляются на сервер. Очистка данных сайта удалит черновик. При запрете/переполнении хранилища отображается предупреждение; остаётся копия в памяти вкладки, которая не переживёт обновление. Повреждённая запись не перезаписывается до нового ввода, пользователь получает сообщение.
 
 web/bug-report.js — схема, правила и экспорт; web/bug-report-ui.js — форма, управление шагами, сохранение и восстановление. Конфигурация Toolbox использует renderer: 'bug-report'. Тесты проверяют правила, три формата, порядок шагов, копирование, reload, повреждённое/недоступное хранилище и адаптивность.
+
+## Помощник выбора техники тест-дизайна
+
+**/test-design#technique-advisor** — пять вопросов о входных ограничениях, комбинациях параметров, условиях, состояниях и бизнес-процессе. Ответы «Да», «Нет», «Пока не знаю» приводят к набору совместимых рекомендаций: Boundary Value Analysis, Equivalence Partitioning, Pairwise, Decision Table, State Transition и сценарный подход. У каждой есть причины выбора, пример, порядок применения, типичные ошибки и ссылка на тему qaHelp. Вход доступен также из /practice.
+
+«Назад» и «Изменить ответы» сохраняют выбор в текущей странице; «Начать заново» очищает его. После обновления страницы опрос начинается заново. Неизвестные ответы не считаются подтверждёнными признаками; без совпадений помощник предлагает уточнить требования. Данные обрабатываются локально в браузере.
+
+Конфигурация и чистая функция `recommend(answers)` находятся в `web/test-design-advisor.js`, DOM-интерфейс — в `web/test-design-advisor-ui.js`. Для расширения добавьте вопрос в `questions`, описание техники в `techniques` и правило в `rules` (`question`, `recommends`, `reason`). Правила срабатывают на `yes`, результаты объединяются без дубликатов, причины сохраняются. Новый вопрос автоматически появляется в интерфейсе; обновите текст о числе вопросов при изменении их количества. Тесты: `tests/test-design-advisor.test.cjs` и сценарий в `tests/browser.cjs`.
 
 ## Test Case / Checklist Builder
 
