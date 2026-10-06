@@ -74,6 +74,29 @@ a.section-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px #657
 @media (max-width: 350px) { .section-grid { grid-template-columns: 1fr; }.section-card { min-height: 220px; }h1 { font-size: 34px; } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; }*, *::before, *::after { transition: none !important; } }
 
+/* Test design advisor. */
+.design-advisor { margin: 28px 0; padding: clamp(18px, 3vw, 32px); border-top: 4px solid #8870d8; }
+.design-advisor h2 { scroll-margin-top: 24px; }
+.design-advisor fieldset { min-width: 0; margin: 18px 0; padding: 0; border: 0; }
+.design-advisor legend { font-size: 22px; font-weight: 700; }
+.advisor-progress, .advisor-subtitle { color: #6352ba; font-weight: 600; }
+.advisor-option { display: flex; align-items: center; gap: 12px; padding: 15px; margin: 10px 0; border: 1px solid #d4cce9; border-radius: 12px; background: #fff; cursor: pointer; }
+.advisor-option:has(input:checked) { background: #efe9ff; border-color: #7561dc; }
+.advisor-option input { width: 20px; height: 20px; accent-color: #6352ba; flex-shrink: 0; }
+.advisor-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+.advisor-button { padding: 12px 20px; min-height: 44px; border: 1px solid #d4cce9; border-radius: 12px; background: #eee8fc; color: #443477; font: inherit; }
+#advisor-next { background: #6352ba; color: white; }
+.advisor-button:disabled { opacity: .5; cursor: default; }
+.advisor-results { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.advisor-result { min-width: 0; padding: 22px; background: #f6f3ff; border: 1px solid #ded7ee; border-radius: 16px; overflow-wrap: anywhere; }
+.advisor-result h3 { margin-top: 0; }
+.advisor-result h4 { margin-bottom: 8px; }
+.advisor-result ul, .advisor-result ol { padding-left: 22px; }
+.advisor-summary { padding-left: 22px; font-size: 14px; }
+.advisor-notice { padding: 14px; background: #fff4dc; border-radius: 10px; }
+@media (max-width: 800px) { .advisor-results { grid-template-columns: 1fr; } }
+@media (max-width: 480px) { .advisor-result { padding: 16px; } .advisor-actions { flex-direction: column; } .design-advisor legend { font-size: 19px; } }
+
 /* Knowledge base: readable articles, local search and responsive examples. */
 [hidden] { display: none !important; }
 button, input { font-family: inherit; }
