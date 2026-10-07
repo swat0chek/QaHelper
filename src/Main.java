@@ -12,6 +12,7 @@ public class Main {
     private static final Map<String, String> ROUTES = Map.ofEntries(
             Map.entry("/", "index.html"),
             Map.entry("/practice", "practice.html"),
+            Map.entry("/diagnostic-map.js", "diagnostic-map.js"),
             Map.entry("/test-design-advisor.js", "test-design-advisor.js"),
             Map.entry("/test-design-advisor-ui.js", "test-design-advisor-ui.js"),
             Map.entry("/toolbox", "toolbox.html"),

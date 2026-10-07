@@ -5,6 +5,10 @@ window.qaModules["architecture"] = {
       "title": "Client-server: пример 1",
       "blocks": [
         {
+          "type": "links",
+          "items": [["Интерактивная карта диагностики: User → Frontend → HTTP/API → Backend → Database → External Services", "/architecture#diagnostic-map"]]
+        },
+        {
           "type": "diagram",
           "labels": [
             "Frontend",

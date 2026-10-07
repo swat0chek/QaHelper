@@ -633,6 +633,29 @@ let ws;
   assert.ok(await evaluate('document.getElementById("case-draft-status").textContent.includes("Не удалось прочитать")'));
   console.log('Test case/checklist: editing, reorder, duplicate, delete, mode switching, reload, copy, storage failures and responsive layouts verified.');
   assert.equal(exceptions.length,0,JSON.stringify(exceptions));
+  await go('/architecture#diagnostic-map');
+  assert.equal(await evaluate('document.querySelectorAll(".diagnostic-chain button").length'),6);
+  for (const layer of ['user','frontend','http-api','backend','database','external-services']) {
+    await evaluate(`document.querySelector('[data-layer="${layer}"]').click()`);
+    assert.equal(await evaluate('document.querySelectorAll(".diagnostic-chain [aria-pressed=true]").length'),1);
+    assert.equal(await evaluate('document.querySelector(".diagnostic-chain [aria-pressed=true]").dataset.layer'),layer);
+    assert.equal(await evaluate('document.querySelectorAll(".diagnostic-card").length'),6);
+    const links = await evaluate('Array.from(document.querySelectorAll(".diagnostic-card a"),a=>a.getAttribute("href"))');
+    for (const href of links) assert.equal((await fetch(base+href)).status,200,href);
+  }
+  await evaluate('document.querySelector("[data-layer=frontend]").focus()');
+  await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+  await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+  assert.ok(await evaluate('document.getElementById("diagnostic-layer-title").textContent.startsWith("Frontend")'));
+  for (const width of [1440,768,390,320]) {
+    await viewport(width); await noOverflow('Diagnostic map '+width);
+  }
+  await screenshot('diagnostic-map-mobile');
+  await viewport(1440);
+  await evaluate('document.getElementById("diagnostic-map").scrollIntoView()');
+  await screenshot('diagnostic-map-desktop');
+  assert.equal(exceptions.length,0,JSON.stringify(exceptions));
+  console.log('Diagnostic map: six layers, related routes, keyboard selection and responsive layouts verified.');
   console.log('Responsive layouts 1440/768/390/320 verified; no browser exceptions.');
   await send('Browser.close');
 })().catch(error => {console.error(error);process.exitCode=1;}).finally(() => {ws?.close();child.kill();});

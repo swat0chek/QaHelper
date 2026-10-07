@@ -160,7 +160,7 @@ window.qaData = {
   {
     "id": "architecture",
     "title": "Архитектура",
-    "description": "Понятные схемы frontend, backend, БД, очередей и кеша.",
+    "description": "Интерактивная карта диагностики: проверки QA по слоям. Схемы frontend, backend, БД, очередей и кеша.",
     "icon": "api",
     "color": "purple",
     "href": "/architecture",
